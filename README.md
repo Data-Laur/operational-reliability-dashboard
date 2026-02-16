@@ -4,6 +4,9 @@
 ## 🎯 Project Objective
 This dashboard serves as a "Subject Matter Expert" audit of 561 professional tasks executed between 2018 and 2026. The goal is to quantify operational reliability and client satisfaction through a verified, timestamped dataset.
 
+## 🚀 Live Demo
+**[Launch the Dashboard](https://lauren-ops-audit.streamlit.app/)**
+
 ## 🛠️ Technical Implementation
 - **Framework:** Streamlit (Python)
 - **Visualization:** Altair (Declarative Statistical Visualization)
@@ -20,6 +23,3 @@ This project was built with a "Privacy & Inclusion First" mindset:
 
 ## 🌿 Green AI & Sustainability
 I prioritized Algorithmic Efficiency by architecting this dashboard as a green energy solution. Instead of utilizing energy-intensive LLM inference or high-frequency API polling, I engineered a Lean Architecture using static regex-based parsing and declarative visualizations. This approach minimizes the carbon footprint of the application and reduces compute costs, demonstrating my commitment to Green AI principles and sustainable engineering in a production environment.
-
-## 🚀 Live Demo
-**[Launch the Dashboard](https://lauren-ops-audit.streamlit.app/)**
