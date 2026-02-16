@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- THE BRAND & ACCESSIBILITY ENGINE (CSS) ---
+# --- CSS: STABLE & CLEAN (Reverted complex hiding logic) ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap');
@@ -22,47 +22,32 @@ st.markdown("""
         color: #1e293b;
     }
 
-    /* --- SIDEBAR & NAVIGATION FIXES --- */
-    /* 1. Unhide the header so mobile users see the hamburger menu */
+    /* TWEAK 1: SIDEBAR VISIBILITY & BRANDING */
+    /* We explicitly ensure the header is visible for mobile users */
     header { visibility: visible !important; background-color: transparent !important; }
     
-    /* 2. Make the 'Open Menu' arrow/hamburger HIGH CONTRAST INDIGO */
+    /* Make the menu button (hamburger) Purple so it stands out */
     [data-testid="stSidebarCollapsedControl"] {
         color: #4338ca !important;
-        font-weight: 700 !important;
     }
-    
-    /* 3. Hide the 'Manage App' default clutter, but keep the nav button */
-    #MainMenu { visibility: hidden; }
-    footer { visibility: hidden; }
 
-    /* --- PROFILE PICTURE (CIRCLE, NO BLUR) --- */
+    /* TWEAK 3: PROFILE PICTURE STYLING */
+    /* Simple circle crop for the sidebar image */
     [data-testid="stSidebar"] img {
         border-radius: 50%;
-        border: 3px solid #4338ca; /* Indigo Brand Border */
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 3px solid #4338ca;
         display: block;
         margin-left: auto;
         margin-right: auto;
-        margin-bottom: 15px;
     }
 
-    /* --- TABS & WIDGETS --- */
-    div[data-baseweb="tab-list"] {
-        position: sticky; top: 0; z-index: 999; background-color: white; padding: 10px 0; border-bottom: 1px solid #f1f5f9;
-    }
+    /* Tabs & Widgets (Kept the Orange-removal fix) */
+    div[data-baseweb="tab-list"] { padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
     button[data-baseweb="tab"] { font-size: 16pt !important; font-weight: 700 !important; color: #475569 !important; }
     button[data-baseweb="tab"][aria-selected="true"] { color: #4338ca !important; border-bottom-color: #4338ca !important; }
     div[data-baseweb="checkbox"] div:first-child { background-color: #4338ca !important; border-color: #4338ca !important; }
-    div[data-baseweb="checkbox"] svg { fill: white !important; }
 
-    /* --- CARDS & LAYOUT --- */
-    .context-header {
-        background-color: #f8fafc; border-left: 5px solid #4338ca; padding: 20px; border-radius: 8px; margin-bottom: 25px;
-    }
-    .spotlight-card {
-        background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%); color: white; padding: 28px; border-radius: 16px; margin: 15px 0 35px 0;
-    }
+    /* Cards */
     .review-card { background-color: #ffffff; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
     .no-review { color: #64748b; font-style: italic; font-size: 14px; }
     </style>
@@ -89,8 +74,7 @@ def load_data():
 
     df = pd.DataFrame(parsed_data, columns=['Category', 'Date', 'Client Name', 'Rating', 'Review'])
     
-    # --- FILTERING LOGIC ---
-    # We remove 'Help Moving' here so the counts (len(df)) are accurate in the dashboard
+    # --- FILTER: REMOVE 'HELP MOVING' ---
     df = df[~df['Category'].str.contains('Help Moving', case=False, na=False)]
     
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
@@ -109,41 +93,38 @@ def load_data():
 
 df = load_data()
 
-# --- SIDEBAR: PROFILE & FILTERS ---
+# --- SIDEBAR ---
 with st.sidebar:
-    # 1. PROFILE PICTURE
+    # TWEAK 3: PROFILE PICTURE (Using standard Streamlit command)
     if os.path.exists("profile.jpg"):
         st.image("profile.jpg", width=120)
-    
+        
     st.markdown("<h1 style='color:#4338ca; margin:10px 0 0 0; text-align:center;'>LAUREN</h1>", unsafe_allow_html=True)
     st.markdown("<p style='font-weight:600; color:#64748b; text-align:center;'>Operations & Analytics</p>", unsafe_allow_html=True)
     st.divider()
-
-    selected_domains = st.multiselect("Domains", sorted(df['Domain'].unique()), default=sorted(df['Domain'].unique()))
     
-    st.write("**Categories**")
+    selected_domains = st.multiselect("Domains", sorted(df['Domain'].unique()), default=sorted(df['Domain'].unique()))
     available_cats = sorted(df[df['Domain'].isin(selected_domains)]['Category'].unique())
     selected_cats = [c for c in available_cats if st.checkbox(c, value=True, key=f"cb_{c}")]
-
     st.divider()
     st.download_button("📥 Download Reviews", df.to_csv(index=False).encode('utf-8'), "Lauren_Performance_Audit.csv")
 
-# --- CONTEXT HEADER ---
+# --- MAIN PAGE ---
+# Context Header (Kept simple)
 st.markdown("""
-    <div class="context-header">
+    <div style="background-color:#f8fafc; border-left: 5px solid #4338ca; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
         <h2 style="margin-top:0; color:#1e293b;">Project Overview: Operational Performance Audit</h2>
         <p style="font-size:1.1rem; line-height:1.5; color:#475569;">
             This application is a <strong>longitudinal performance study</strong> analyzing verified professional tasks. 
-            By quantifying seven years of client feedback, this audit proves a scalable track record of operational excellence and reliability.
+            By quantifying seven years of client feedback, this audit proves a scalable track record of operational excellence.
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-# --- MAIN DASHBOARD ---
 t_audit, t_analytics = st.tabs(["📂 Audit Feed", "📈 Analytics & Insights"])
 
 with t_audit:
-    # SPOTLIGHT CAROUSEL
+    # Spotlight
     hall_of_fame = [
         {"text": "Lauren is smart, pleasant and tenacious. Great combo! Hire her!! Very pleased.", "author": "Scott S.", "cat": "Computer Help"},
         {"text": "Lauren was fantastic! She was on time, communicative, and did an amazing job.", "author": "Emily R.", "cat": "Moving Help"},
@@ -151,39 +132,37 @@ with t_audit:
     ]
     if 'idx' not in st.session_state: st.session_state.idx = 0
 
-    c_left, c_main, c_right = st.columns([1, 12, 1])
-    with c_left:
-        st.markdown("<div style='height:85px;'></div>", unsafe_allow_html=True)
-        if st.button("❮", aria_label="Previous Testimonial"): st.session_state.idx = (st.session_state.idx - 1) % len(hall_of_fame)
-    with c_right:
-        st.markdown("<div style='height:85px;'></div>", unsafe_allow_html=True)
-        if st.button("❯", aria_label="Next Testimonial"): st.session_state.idx = (st.session_state.idx + 1) % len(hall_of_fame)
+    c1, c2, c3 = st.columns([1, 12, 1])
+    with c1:
+        st.write("") 
+        st.write("")
+        if st.button("❮"): st.session_state.idx = (st.session_state.idx - 1) % len(hall_of_fame)
+    with c3:
+        st.write("")
+        st.write("")
+        if st.button("❯"): st.session_state.idx = (st.session_state.idx + 1) % len(hall_of_fame)
     
     item = hall_of_fame[st.session_state.idx]
-    with c_main:
+    with c2:
         st.markdown(f"""
-        <div class="spotlight-card">
+        <div style="background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%); color: white; padding: 28px; border-radius: 16px; margin: 0 0 35px 0;">
             <div style="font-size: 1.4rem; font-style: italic; font-weight: 500;">"{item['text']}"</div>
             <div style="margin-top: 12px; font-weight: 700;">— {item['author']} | {item['cat']}</div>
         </div>
         """, unsafe_allow_html=True)
 
-    # METRICS ROW
+    # Metrics
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Lifetime Tasks", "561")
-    # Dynamic Count (Should be 190 if 'Help Moving' is removed)
+    # TWEAK 2: DYNAMIC COUNT (No hardcoded 191)
     m2.metric("Audit Sample", f"{len(df)}") 
     m3.metric("Composite Rating", f"{df['Rating'].mean():.2f}")
     m4.metric("Operational Risk", "Negligible", delta="- 0% Risk", delta_color="inverse")
 
     st.divider()
     
-    # Dynamic Search Placeholder
-    search = st.text_input(
-        f"🔍 Search {len(df)} verified records...", 
-        placeholder="Filter by keyword (e.g., 'fast', 'punctual')..."
-    )
-
+    # Search
+    search = st.text_input("🔍 Search verified records...", placeholder="Filter by keyword...")
     filtered_df = df[(df['Domain'].isin(selected_domains)) & (df['Category'].isin(selected_cats))].sort_values('Date', ascending=False)
     if search: filtered_df = filtered_df[filtered_df['Review'].str.contains(search, case=False, na=False)]
 
@@ -194,7 +173,6 @@ with t_audit:
             stars = "★" * int(round(row['Rating']))
             rev = str(row['Review']).strip()
             
-            # Smart Quote Logic
             clean_check = re.sub(r'[^\w\s]', '', rev.lower())
             if clean_check in ['nan', 'none', 'null', 'no text provided', 'no review', '']:
                 rev_html = '<div class="no-review">No written review provided.</div>'
@@ -216,7 +194,6 @@ with t_analytics:
     st.markdown("### 📊 Operational Insights")
     st.divider()
     
-    # Growth Chart
     df_sorted = df.sort_values(by='Date')
     df_sorted['Cumulative Reviews'] = range(1, len(df_sorted) + 1)
     growth = alt.Chart(df_sorted).mark_area(
@@ -228,7 +205,6 @@ with t_analytics:
     ).properties(height=350)
     st.altair_chart(growth, use_container_width=True)
     
-    # Sentiment Analysis Chart
     st.markdown("#### 🗣️ Sentiment DNA")
     text = " ".join(df['Review'].astype(str).tolist()).lower()
     targets = {"Fast": text.count("fast"), "Efficient": text.count("efficient"), "Professional": text.count("professional"), "Kind": text.count("kind"), "Helpful": text.count("helpful")}
