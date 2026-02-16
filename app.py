@@ -46,6 +46,7 @@ st.markdown("""
         display: block;
         margin-left: auto;
         margin-right: auto;
+        margin-bottom: 15px;
     }
 
     /* Tabs & Widgets Branding */
@@ -80,10 +81,7 @@ def load_data():
     except: return pd.DataFrame()
 
     df = pd.DataFrame(parsed_data, columns=['Category', 'Date', 'Client Name', 'Rating', 'Review'])
-    
-    # FILTER: Removing 'Help Moving' to clean noise from the audit sample
     df = df[~df['Category'].str.contains('Help Moving', case=False, na=False)]
-    
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
     df['Rating'] = pd.to_numeric(df['Rating'], errors='coerce')
     
@@ -138,14 +136,15 @@ with t_audit:
     if 'idx' not in st.session_state: st.session_state.idx = 0
 
     c1, c2, c3 = st.columns([1, 12, 1])
+    # --- BUG FIX: Removed 'aria_label' which caused the TypeError ---
     with c1:
         st.write("") 
         st.write("")
-        if st.button("❮", aria_label="Previous"): st.session_state.idx = (st.session_state.idx - 1) % len(hall_of_fame)
+        if st.button("❮"): st.session_state.idx = (st.session_state.idx - 1) % len(hall_of_fame)
     with c3:
         st.write("")
         st.write("")
-        if st.button("❯", aria_label="Next"): st.session_state.idx = (st.session_state.idx + 1) % len(hall_of_fame)
+        if st.button("❯"): st.session_state.idx = (st.session_state.idx + 1) % len(hall_of_fame)
     
     item = hall_of_fame[st.session_state.idx]
     with c2:
@@ -158,15 +157,14 @@ with t_audit:
 
     # Core Performance Metrics
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Lifetime Tasks", "561") # Total platform interactions
-    m2.metric("Audit Sample", f"{len(df)}") # Filtered text-review count (190)
-    m3.metric("Composite Rating", "4.9") # Official platform rating from verified data
+    m1.metric("Lifetime Tasks", "561") 
+    m2.metric("Audit Sample", f"{len(df)}") # Should show 190
+    m3.metric("Composite Rating", "4.94") # Updated to exact precision
     m4.metric("Operational Risk", "Negligible", delta="- 0% Risk", delta_color="inverse")
 
     st.divider()
     
-    # Interactive Search
-    search = st.text_input(f"🔍 Search {len(df)} verified records...", placeholder="Filter by keyword (e.g., 'punctual')...")
+    search = st.text_input(f"🔍 Search {len(df)} verified records...", placeholder="Filter by keyword...")
     filtered_df = df[(df['Domain'].isin(selected_domains)) & (df['Category'].isin(selected_cats))].sort_values('Date', ascending=False)
     if search: filtered_df = filtered_df[filtered_df['Review'].str.contains(search, case=False, na=False)]
 
@@ -198,7 +196,6 @@ with t_analytics:
     st.markdown("### 📊 Operational Insights")
     st.divider()
     
-    # Growth Chart (Cumulative Performance)
     df_sorted = df.sort_values(by='Date')
     df_sorted['Cumulative Reviews'] = range(1, len(df_sorted) + 1)
     growth = alt.Chart(df_sorted).mark_area(
@@ -209,11 +206,3 @@ with t_analytics:
         y=alt.Y('Cumulative Reviews:Q', title='Count')
     ).properties(height=350)
     st.altair_chart(growth, use_container_width=True)
-    
-    # Qualitative Analysis (Trait Mentions)
-    st.markdown("#### 🗣️ Sentiment DNA")
-    text = " ".join(df['Review'].astype(str).tolist()).lower()
-    targets = {"Fast": text.count("fast"), "Efficient": text.count("efficient"), "Professional": text.count("professional"), "Kind": text.count("kind"), "Helpful": text.count("helpful")}
-    nlp_df = pd.DataFrame(list(targets.items()), columns=['Trait', 'Mentions'])
-    nlp_chart = alt.Chart(nlp_df).mark_bar(color='#4338ca').encode(x=alt.X('Mentions:Q'), y=alt.Y('Trait:N', sort='-x')).properties(height=350)
-    st.altair_chart(nlp_chart, use_container_width=True)
