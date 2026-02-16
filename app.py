@@ -34,17 +34,38 @@ st.markdown("""
         --primary-color: #4338ca;
         --text-color: #1e293b;
     }
-    
-    /* Force focus rings to be Indigo */
-    div[data-baseweb="select"] > div:focus-within {
-        border-color: #4338ca !important;
-        box-shadow: 0 0 0 2px rgba(67, 56, 202, 0.2) !important;
+
+    /* --- NUCLEAR TAGS FIX (Kills the Orange Tags) --- */
+    span[data-baseweb="tag"] {
+        background-color: #e0e7ff !important; /* Light Indigo Background */
+        border: 1px solid #4338ca !important;
     }
-    div[data-testid="stCheckbox"] label span:first-child {
-        border-color: #4338ca !important;
+    
+    /* The text inside the tag */
+    span[data-baseweb="tag"] span {
+        color: #4338ca !important; 
+        font-weight: 600 !important;
+    }
+    
+    /* The 'X' to close the tag */
+    span[data-baseweb="tag"] svg {
+        fill: #4338ca !important;
     }
 
-    /* --- NUCLEAR HAMBURGER MENU FIX --- */
+    /* --- NUCLEAR CHECKBOX FIX (Kills the Orange Check) --- */
+    /* The box itself when checked */
+    div[data-testid="stCheckbox"] label span[aria-checked="true"] {
+        background-color: #4338ca !important;
+        border-color: #4338ca !important;
+    }
+    
+    /* The border when unchecked */
+    div[data-testid="stCheckbox"] label span[aria-checked="false"] {
+        border-color: #4338ca !important;
+        background-color: white !important;
+    }
+
+    /* --- HAMBURGER MENU FIX --- */
     button[data-testid="stSidebarCollapsedControl"] {
         color: #4338ca !important;
         background-color: #f1f5f9 !important;
@@ -160,9 +181,9 @@ with st.sidebar:
     # 3. LINKS 
     c1, c2 = st.columns(2)
     with c1:
-        st.link_button("LinkedIn", "https://www.linkedin.com/in/laurenchagaris", use_container_width=True)
+        st.link_button("LinkedIn", "https://www.linkedin.com/in/lchagaris", use_container_width=True)
     with c2:
-        st.link_button("Portfolio", "https://www.uxfol.io/p/laurenchagaris", use_container_width=True)
+        st.link_button("Portfolio", "https://www.laurendemidesign.com", use_container_width=True)
     
     st.divider()
     
@@ -257,7 +278,8 @@ with t_audit:
                 <div class="review-card">
                     <div style="display: flex; justify-content: space-between;">
                         <span style="font-weight:700; font-size:1.1rem;">{row['Client Name']}</span>
-                        <span style="color:#FBBF24; font-size:1.1rem;">{stars}</span> </div>
+                        <span style="color:#FBBF24; font-size:1.1rem;">{stars}</span>
+                    </div>
                     <div style="font-size:0.9rem; color:#64748b; margin: 4px 0 12px 0;">📅 {d_str} • {row['Category']}</div>
                     {rev_html}
                 </div>
