@@ -7,7 +7,7 @@ import re
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="Chagaris | Vibe Check", 
-    page_icon="✨", # Sparkles for the 'Vibe' aesthetic
+    page_icon="✨",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -22,29 +22,46 @@ st.markdown("""
         color: #1e293b;
     }
 
-    /* --- NUCLEAR SIDEBAR FIX --- */
+    /* --- NUCLEAR HAMBURGER MENU FIX --- */
+    /* Targets the button container */
     [data-testid="stSidebarCollapsedControl"] {
         color: #4338ca !important;
         background-color: #f1f5f9 !important;
         border: 2px solid #4338ca !important;
         border-radius: 8px !important;
-        padding: 5px !important;
+        padding: 4px !important;
     }
     
-    [data-testid="stSidebarCollapsedControl"] svg {
+    /* Targets the internal SVG icon specifically */
+    [data-testid="stSidebarCollapsedControl"] > svg, 
+    [data-testid="stSidebarCollapsedControl"] > svg > path {
         fill: #4338ca !important;
         stroke: #4338ca !important;
     }
 
-    /* --- IMAGE CLARITY & CIRCLE FIX --- */
-    [data-testid="stSidebar"] img {
-        border-radius: 50%;
-        border: 3px solid #4338ca;
-        image-rendering: -webkit-optimize-contrast; 
+    /* --- SMART IMAGE STYLING --- */
+    /* 1. Profile Pic (First image in sidebar) -> Circle & Centered */
+    [data-testid="stSidebar"] div[data-testid="stImage"]:first-of-type img {
+        border-radius: 50% !important;
+        border: 3px solid #4338ca !important;
+        image-rendering: -webkit-optimize-contrast;
         display: block;
         margin-left: auto;
         margin-right: auto;
-        margin-bottom: 15px;
+    }
+
+    /* 2. Screenshot (Second image in sidebar) -> Rectangle & Clean */
+    [data-testid="stSidebar"] div[data-testid="stImage"]:nth-of-type(2) img {
+        border-radius: 8px !important; /* Slight rounded corner for modern look */
+        border: 1px solid #e2e8f0 !important;
+        width: 100% !important;
+    }
+
+    /* --- MULTISELECT WRAPPING FIX --- */
+    /* Forces the tags to wrap so they are not cut off */
+    .stMultiSelect span[data-baseweb="tag"] {
+        white-space: normal !important;
+        max-width: 100% !important;
     }
 
     /* Tabs & Widgets Branding */
@@ -98,37 +115,46 @@ df = load_data()
 
 # --- SIDEBAR: THE CHAGARIS BRAND ---
 with st.sidebar:
+    # 1. PROFILE PHOTO (Centered via CSS above)
     if os.path.exists("profile.jpg"):
-        st.image("profile.jpg", width=120)
+        st.image("profile.jpg", width=130)
         
-    st.markdown("<h1 style='color:#4338ca; margin:10px 0 0 0; text-align:center;'>LAUREN CHAGARIS</h1>", unsafe_allow_html=True)
+    # 2. CENTERED TEXT ELEMENTS
+    st.markdown("""
+        <div style="text-align: center;">
+            <h1 style="color:#4338ca; margin:10px 0 0 0; font-size: 2rem;">LAUREN CHAGARIS</h1>
+            <p style="font-weight:700; color:#1e293b; margin-bottom:5px;">AI Engineer & Data Scientist</p>
+            <p style="font-size:0.85rem; color:#64748b; margin-bottom: 20px;">Focus: Sustainability & Optimization 🌿</p>
+        </div>
+    """, unsafe_allow_html=True)
     
-    # CONFIDENT TITLES
-    st.markdown("<p style='font-weight:700; color:#1e293b; text-align:center; margin-bottom:5px;'>AI Engineer & Data Scientist</p>", unsafe_allow_html=True)
-    
-    # SUSTAINABILITY TAG
-    st.caption("Focus: Sustainability & Optimization 🌿")
-    
-    # CTA BUTTON
-    st.link_button("🚀 Hire Me / LinkedIn", "https://www.linkedin.com/in/YOUR_LINKEDIN_HERE", use_container_width=True)
+    # 3. LINKS (Replace these placeholder URLs!)
+    c1, c2 = st.columns(2)
+    with c1:
+        st.link_button("LinkedIn", "https://www.linkedin.com/in/lchagaris", use_container_width=True)
+    with c2:
+        st.link_button("Portfolio", "https://www.laurendemidesign.com", use_container_width=True) # Replace with actual portfolio link
     
     st.divider()
     
-    # PROOF OF PERFORMANCE
+    # 4. PROOF OF PERFORMANCE (Moved Up)
     if os.path.exists("reviews_screenshot.png"):
-        with st.expander("✅ Verified Platform Data"):
+        with st.expander("✅ Verified Platform Data", expanded=False):
             st.image("reviews_screenshot.png", caption="319 Total Ratings (Source: TaskRabbit)", use_container_width=True)
         st.divider()
 
+    # 5. FILTERS (With Text Wrap Fix)
     selected_domains = st.multiselect("Domains", sorted(df['Domain'].unique()), default=sorted(df['Domain'].unique()))
+    
+    # Clean up the "Select Categories" area
     available_cats = sorted(df[df['Domain'].isin(selected_domains)]['Category'].unique())
-    selected_cats = [c for c in available_cats if st.checkbox(c, value=True, key=f"cb_{c}")]
+    with st.expander("Filter Categories", expanded=False):
+        selected_cats = [c for c in available_cats if st.checkbox(c, value=True, key=f"cb_{c}")]
+    
     st.divider()
-    st.download_button("📥 Download Reviews", df.to_csv(index=False).encode('utf-8'), "Lauren_Chagaris_Audit.csv")
+    st.download_button("📥 Download Reviews", df.to_csv(index=False).encode('utf-8'), "Lauren_Chagaris_Audit.csv", use_container_width=True)
 
 # --- MAIN DASHBOARD: THE VIBE CHECK ---
-
-# "VIBE CHECK" HEADER
 st.markdown("""
     <div style="background-color:#f8fafc; border-left: 5px solid #4338ca; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
         <h2 style="margin-top:0; color:#1e293b;">The Chagaris Vibe Check: Verified Operational Performance</h2>
@@ -201,8 +227,7 @@ with t_audit:
                 <div class="review-card">
                     <div style="display: flex; justify-content: space-between;">
                         <span style="font-weight:700; font-size:1.1rem;">{row['Client Name']}</span>
-                        <span style="color:#f59e0b; font-size:1.1rem;">{stars}</span>
-                    </div>
+                        <span style="color:#FBBF24; font-size:1.1rem;">{stars}</span> </div>
                     <div style="font-size:0.9rem; color:#64748b; margin: 4px 0 12px 0;">📅 {d_str} • {row['Category']}</div>
                     {rev_html}
                 </div>
