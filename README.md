@@ -20,3 +20,6 @@ This project was built with a "Privacy & Inclusion First" mindset:
 
 ## 🌿 Green AI & Sustainability
 I prioritized Algorithmic Efficiency by architecting this dashboard as a green energy solution. Instead of utilizing energy-intensive LLM inference or high-frequency API polling, I engineered a Lean Architecture using static regex-based parsing and declarative visualizations. This approach minimizes the carbon footprint of the application and reduces compute costs, demonstrating my commitment to Green AI principles and sustainable engineering in a production environment.
+
+## 🚀 Live Demo
+**[Launch the Dashboard](https://lauren-ops-audit.streamlit.app/)**
