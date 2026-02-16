@@ -3,6 +3,7 @@ import pandas as pd
 import altair as alt
 import os
 import re
+import base64
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -11,6 +12,12 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# --- HELPER: BASE64 IMAGE LOADER ---
+def get_img_as_base64(file_path):
+    with open(file_path, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 
 # --- THE BRAND & UI ENGINE (CSS) ---
 st.markdown("""
@@ -22,56 +29,69 @@ st.markdown("""
         color: #1e293b;
     }
 
-    /* --- NUCLEAR HAMBURGER MENU FIX --- */
-    /* We target the header button specifically */
-    header[data-testid="stHeader"] {
-        background-color: transparent !important;
+    /* --- GLOBAL COLOR OVERRIDE --- */
+    :root {
+        --primary-color: #4338ca;
+        --text-color: #1e293b;
     }
     
-    /* The button wrapper */
+    /* Force focus rings to be Indigo */
+    div[data-baseweb="select"] > div:focus-within {
+        border-color: #4338ca !important;
+        box-shadow: 0 0 0 2px rgba(67, 56, 202, 0.2) !important;
+    }
+    div[data-testid="stCheckbox"] label span:first-child {
+        border-color: #4338ca !important;
+    }
+
+    /* --- NUCLEAR HAMBURGER MENU FIX --- */
     button[data-testid="stSidebarCollapsedControl"] {
         color: #4338ca !important;
         background-color: #f1f5f9 !important;
         border: 2px solid #4338ca !important;
         border-radius: 8px !important;
-        height: 40px !important;
-        width: 40px !important;
+        height: 45px !important;
+        width: 45px !important;
         padding: 5px !important;
     }
     
-    /* The icon inside the button */
-    button[data-testid="stSidebarCollapsedControl"] svg {
+    button[data-testid="stSidebarCollapsedControl"] svg, 
+    button[data-testid="stSidebarCollapsedControl"] svg path {
         fill: #4338ca !important;
         stroke: #4338ca !important;
     }
 
-    /* --- SIDEBAR CENTERING FIX --- */
-    /* Force the sidebar content to align center */
-    [data-testid="stSidebarUserContent"] {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
+    /* --- DOMAIN TAG BOX FIX (Taller) --- */
+    .stMultiSelect div[data-baseweb="select"] > div {
+        max-height: none !important;
+        overflow-y: visible !important;
+        white-space: normal !important;
+    }
+    .stMultiSelect span[data-baseweb="tag"] {
+        margin-bottom: 5px !important;
+    }
+
+    /* --- METRIC FONT SIZE FIX --- */
+    div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricValue"] {
+        font-size: 1.8rem !important; 
+    }
+
+    /* --- TAB FONT SIZE FIX (Larger) --- */
+    button[data-baseweb="tab"] { 
+        font-size: 20px !important; 
+        font-weight: 700 !important; 
+        color: #64748b !important; 
+    }
+    button[data-baseweb="tab"][aria-selected="true"] { 
+        color: #4338ca !important; 
+        border-bottom-color: #4338ca !important; 
     }
     
-    /* Profile Picture Specifics */
-    [data-testid="stSidebar"] div[data-testid="stImage"]:first-of-type img {
-        border-radius: 50% !important;
-        border: 3px solid #4338ca !important;
-        object-fit: cover !important;
+    /* Tab Container Padding */
+    div[data-baseweb="tab-list"] { 
+        padding: 15px 0; 
+        border-bottom: 2px solid #f1f5f9; 
     }
-
-    /* --- METRIC FONT SIZE FIX (Targeting the 5th Metric) --- */
-    /* This shrinks the 'Negligible' text only */
-    div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricValue"] {
-        font-size: 1.8rem !important; /* Reduced from default ~3rem */
-    }
-
-    /* Tabs & Widgets Branding */
-    div[data-baseweb="tab-list"] { padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
-    button[data-baseweb="tab"] { font-size: 16pt !important; font-weight: 700 !important; color: #475569 !important; }
-    button[data-baseweb="tab"][aria-selected="true"] { color: #4338ca !important; border-bottom-color: #4338ca !important; }
-    div[data-baseweb="checkbox"] div:first-child { background-color: #4338ca !important; border-color: #4338ca !important; }
 
     /* Review Cards Styling */
     .review-card { background-color: #ffffff; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; text-align: left; }
@@ -118,15 +138,21 @@ df = load_data()
 
 # --- SIDEBAR: THE CHAGARIS BRAND ---
 with st.sidebar:
-    # 1. PROFILE PHOTO (Python controls width for sharpness)
+    # 1. PROFILE PHOTO (HTML Base64 Injection)
     if os.path.exists("profile.jpg"):
-        st.image("profile.jpg", width=150)
+        img_b64 = get_img_as_base64("profile.jpg")
+        st.markdown(f"""
+            <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                <img src="data:image/jpg;base64,{img_b64}" 
+                     style="border-radius: 50%; border: 3px solid #4338ca; width: 150px; height: 150px; object-fit: cover; display: block;">
+            </div>
+        """, unsafe_allow_html=True)
         
     # 2. CENTERED TEXT ELEMENTS
     st.markdown("""
         <div style="text-align: center;">
-            <h1 style="color:#4338ca; margin:10px 0 0 0; font-size: 2rem;">LAUREN CHAGARIS</h1>
-            <p style="font-weight:700; color:#1e293b; margin-bottom:5px;">AI Engineer & Data Scientist</p>
+            <h1 style="color:#4338ca; margin:0; font-size: 2rem;">LAUREN CHAGARIS</h1>
+            <p style="font-weight:700; color:#1e293b; margin: 5px 0;">AI Engineer & Data Scientist</p>
             <p style="font-size:0.85rem; color:#64748b; margin-bottom: 20px;">Focus: Sustainability & Optimization 🌿</p>
         </div>
     """, unsafe_allow_html=True)
@@ -134,9 +160,9 @@ with st.sidebar:
     # 3. LINKS 
     c1, c2 = st.columns(2)
     with c1:
-        st.link_button("LinkedIn", "https://www.linkedin.com/in/lchagaris", use_container_width=True)
+        st.link_button("LinkedIn", "https://www.linkedin.com/in/laurenchagaris", use_container_width=True)
     with c2:
-        st.link_button("Portfolio", "https://www.laurendemidesign.com", use_container_width=True)
+        st.link_button("Portfolio", "https://www.uxfol.io/p/laurenchagaris", use_container_width=True)
     
     st.divider()
     
@@ -147,7 +173,6 @@ with st.sidebar:
         st.divider()
 
     # 5. FILTERS
-    # Align text left specifically for filters since the main sidebar is centered
     st.markdown('<div style="text-align: left; width: 100%;">', unsafe_allow_html=True)
     selected_domains = st.multiselect("Domains", sorted(df['Domain'].unique()), default=sorted(df['Domain'].unique()))
     
@@ -157,7 +182,7 @@ with st.sidebar:
     st.markdown('</div>', unsafe_allow_html=True)
     
     st.divider()
-    st.download_button("📥 Download Reviews", df.to_csv(index=False).encode('utf-8'), "Lauren_Chagaris_Taskrabbit_Review_Performance_Audit.csv", use_container_width=True)
+    st.download_button("📥 Download Reviews", df.to_csv(index=False).encode('utf-8'), "Lauren_Chagaris_Audit.csv", use_container_width=True)
 
 # --- MAIN DASHBOARD: THE VIBE CHECK ---
 st.markdown("""
@@ -232,7 +257,7 @@ with t_audit:
                 <div class="review-card">
                     <div style="display: flex; justify-content: space-between;">
                         <span style="font-weight:700; font-size:1.1rem;">{row['Client Name']}</span>
-                        <span style="color:#10b981; font-size:1.1rem;">{stars}</span> </div>
+                        <span style="color:#FBBF24; font-size:1.1rem;">{stars}</span> </div>
                     <div style="font-size:0.9rem; color:#64748b; margin: 4px 0 12px 0;">📅 {d_str} • {row['Category']}</div>
                     {rev_html}
                 </div>
