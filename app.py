@@ -6,8 +6,8 @@ import re
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="Lauren | Operational Audit", 
-    page_icon="📈",
+    page_title="Chagaris | Vibe Check", 
+    page_icon="✨", # Sparkles for the 'Vibe' aesthetic
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -22,19 +22,18 @@ st.markdown("""
         color: #1e293b;
     }
 
-    /* --- SIDEBAR NAVIGATION FIX: PURPLE & BOLD --- */
-    button[data-testid="stSidebarCollapsedControl"] svg {
-        fill: #4338ca !important;
-        width: 32px !important;
-        height: 32px !important;
-    }
-    
-    button[data-testid="stSidebarCollapsedControl"] {
+    /* --- NUCLEAR SIDEBAR FIX --- */
+    [data-testid="stSidebarCollapsedControl"] {
+        color: #4338ca !important;
         background-color: #f1f5f9 !important;
         border: 2px solid #4338ca !important;
         border-radius: 8px !important;
-        left: 10px !important;
-        top: 10px !important;
+        padding: 5px !important;
+    }
+    
+    [data-testid="stSidebarCollapsedControl"] svg {
+        fill: #4338ca !important;
+        stroke: #4338ca !important;
     }
 
     /* --- IMAGE CLARITY & CIRCLE FIX --- */
@@ -42,7 +41,6 @@ st.markdown("""
         border-radius: 50%;
         border: 3px solid #4338ca;
         image-rendering: -webkit-optimize-contrast; 
-        image-rendering: crisp-edges;
         display: block;
         margin-left: auto;
         margin-right: auto;
@@ -98,28 +96,46 @@ def load_data():
 
 df = load_data()
 
-# --- SIDEBAR ---
+# --- SIDEBAR: THE CHAGARIS BRAND ---
 with st.sidebar:
     if os.path.exists("profile.jpg"):
         st.image("profile.jpg", width=120)
         
-    st.markdown("<h1 style='color:#4338ca; margin:10px 0 0 0; text-align:center;'>LAUREN</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='font-weight:600; color:#64748b; text-align:center;'>Operations & Analytics</p>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color:#4338ca; margin:10px 0 0 0; text-align:center;'>LAUREN CHAGARIS</h1>", unsafe_allow_html=True)
+    
+    # CONFIDENT TITLES
+    st.markdown("<p style='font-weight:700; color:#1e293b; text-align:center; margin-bottom:5px;'>AI Engineer & Data Scientist</p>", unsafe_allow_html=True)
+    
+    # SUSTAINABILITY TAG
+    st.caption("Focus: Sustainability & Optimization 🌿")
+    
+    # CTA BUTTON
+    st.link_button("🚀 Hire Me / LinkedIn", "https://www.linkedin.com/in/YOUR_LINKEDIN_HERE", use_container_width=True)
+    
     st.divider()
     
+    # PROOF OF PERFORMANCE
+    if os.path.exists("reviews_screenshot.png"):
+        with st.expander("✅ Verified Platform Data"):
+            st.image("reviews_screenshot.png", caption="319 Total Ratings (Source: TaskRabbit)", use_container_width=True)
+        st.divider()
+
     selected_domains = st.multiselect("Domains", sorted(df['Domain'].unique()), default=sorted(df['Domain'].unique()))
     available_cats = sorted(df[df['Domain'].isin(selected_domains)]['Category'].unique())
     selected_cats = [c for c in available_cats if st.checkbox(c, value=True, key=f"cb_{c}")]
     st.divider()
-    st.download_button("📥 Download Reviews", df.to_csv(index=False).encode('utf-8'), "Lauren_Performance_Audit.csv")
+    st.download_button("📥 Download Reviews", df.to_csv(index=False).encode('utf-8'), "Lauren_Chagaris_Audit.csv")
 
-# --- MAIN DASHBOARD PAGE ---
+# --- MAIN DASHBOARD: THE VIBE CHECK ---
+
+# "VIBE CHECK" HEADER
 st.markdown("""
     <div style="background-color:#f8fafc; border-left: 5px solid #4338ca; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-        <h2 style="margin-top:0; color:#1e293b;">Project Overview: Operational Performance Audit</h2>
+        <h2 style="margin-top:0; color:#1e293b;">The Chagaris Vibe Check: Verified Operational Performance</h2>
         <p style="font-size:1.1rem; line-height:1.5; color:#475569;">
-            This application is a <strong>longitudinal performance study</strong> analyzing verified professional tasks. 
-            By quantifying seven years of client feedback, this audit proves a scalable track record of operational excellence.
+            This is not a simulation. This dashboard audits <strong>my verified operational history</strong>. 
+            By quantifying <strong>561 real-world tasks</strong>, I provide transparent proof of reliability, 
+            problem-solving, and the "vibe" I bring to every project: <strong>consistently 5-star</strong>.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -127,7 +143,7 @@ st.markdown("""
 t_audit, t_analytics = st.tabs(["📂 Audit Feed", "📈 Analytics & Insights"])
 
 with t_audit:
-    # Spotlight Testimonials
+    # Spotlight
     hall_of_fame = [
         {"text": "Lauren is smart, pleasant and tenacious. Great combo! Hire her!! Very pleased.", "author": "Scott S.", "cat": "Computer Help"},
         {"text": "Lauren was fantastic! She was on time, communicative, and did an amazing job.", "author": "Emily R.", "cat": "Moving Help"},
@@ -136,7 +152,6 @@ with t_audit:
     if 'idx' not in st.session_state: st.session_state.idx = 0
 
     c1, c2, c3 = st.columns([1, 12, 1])
-    # --- BUG FIX: Removed 'aria_label' which caused the TypeError ---
     with c1:
         st.write("") 
         st.write("")
@@ -155,16 +170,17 @@ with t_audit:
         </div>
         """, unsafe_allow_html=True)
 
-    # Core Performance Metrics
-    m1, m2, m3, m4 = st.columns(4)
+    # 5-COLUMN METRICS
+    m1, m2, m3, m4, m5 = st.columns(5)
     m1.metric("Lifetime Tasks", "561") 
-    m2.metric("Audit Sample", f"{len(df)}") # Should show 190
-    m3.metric("Composite Rating", "4.94") # Updated to exact precision
-    m4.metric("Operational Risk", "Negligible", delta="- 0% Risk", delta_color="inverse")
+    m2.metric("Audit Sample", f"{len(df)}") 
+    m3.metric("Composite Rating", "4.94") 
+    m4.metric("5-Star Tasks", "310", delta="Top 1% Rank", delta_color="normal")
+    m5.metric("Operational Risk", "Negligible", delta="- 0% Risk", delta_color="inverse")
 
     st.divider()
     
-    search = st.text_input(f"🔍 Search {len(df)} verified records...", placeholder="Filter by keyword...")
+    search = st.text_input(f"🔍 Search {len(df)} verified records...", placeholder="Filter by keyword (e.g., 'punctual')...")
     filtered_df = df[(df['Domain'].isin(selected_domains)) & (df['Category'].isin(selected_cats))].sort_values('Date', ascending=False)
     if search: filtered_df = filtered_df[filtered_df['Review'].str.contains(search, case=False, na=False)]
 
@@ -206,3 +222,10 @@ with t_analytics:
         y=alt.Y('Cumulative Reviews:Q', title='Count')
     ).properties(height=350)
     st.altair_chart(growth, use_container_width=True)
+    
+    st.markdown("#### 🗣️ Sentiment DNA")
+    text = " ".join(df['Review'].astype(str).tolist()).lower()
+    targets = {"Fast": text.count("fast"), "Efficient": text.count("efficient"), "Professional": text.count("professional"), "Kind": text.count("kind"), "Helpful": text.count("helpful")}
+    nlp_df = pd.DataFrame(list(targets.items()), columns=['Trait', 'Mentions'])
+    nlp_chart = alt.Chart(nlp_df).mark_bar(color='#4338ca').encode(x=alt.X('Mentions:Q'), y=alt.Y('Trait:N', sort='-x')).properties(height=350)
+    st.altair_chart(nlp_chart, use_container_width=True)
