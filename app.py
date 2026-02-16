@@ -89,8 +89,8 @@ def load_data():
 
     df = pd.DataFrame(parsed_data, columns=['Category', 'Date', 'Client Name', 'Rating', 'Review'])
     
-    # --- FILTERING OUT 'HELP MOVING' ---
-    # This happens BEFORE we count the rows, so 'len(df)' will be accurate (190)
+    # --- FILTERING LOGIC ---
+    # We remove 'Help Moving' here so the counts (len(df)) are accurate in the dashboard
     df = df[~df['Category'].str.contains('Help Moving', case=False, na=False)]
     
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
@@ -111,8 +111,7 @@ df = load_data()
 
 # --- SIDEBAR: PROFILE & FILTERS ---
 with st.sidebar:
-    # 1. PROFILE PICTURE (Must match filename in repo)
-    # The CSS above will automatically make this circular
+    # 1. PROFILE PICTURE
     if os.path.exists("profile.jpg"):
         st.image("profile.jpg", width=120)
     
@@ -144,7 +143,7 @@ st.markdown("""
 t_audit, t_analytics = st.tabs(["📂 Audit Feed", "📈 Analytics & Insights"])
 
 with t_audit:
-    # SPOTLIGHT
+    # SPOTLIGHT CAROUSEL
     hall_of_fame = [
         {"text": "Lauren is smart, pleasant and tenacious. Great combo! Hire her!! Very pleased.", "author": "Scott S.", "cat": "Computer Help"},
         {"text": "Lauren was fantastic! She was on time, communicative, and did an amazing job.", "author": "Emily R.", "cat": "Moving Help"},
@@ -155,10 +154,10 @@ with t_audit:
     c_left, c_main, c_right = st.columns([1, 12, 1])
     with c_left:
         st.markdown("<div style='height:85px;'></div>", unsafe_allow_html=True)
-        if st.button("❮", aria_label="Previous"): st.session_state.idx = (st.session_state.idx - 1) % len(hall_of_fame)
+        if st.button("❮", aria_label="Previous Testimonial"): st.session_state.idx = (st.session_state.idx - 1) % len(hall_of_fame)
     with c_right:
         st.markdown("<div style='height:85px;'></div>", unsafe_allow_html=True)
-        if st.button("❯", aria_label="Next"): st.session_state.idx = (st.session_state.idx + 1) % len(hall_of_fame)
+        if st.button("❯", aria_label="Next Testimonial"): st.session_state.idx = (st.session_state.idx + 1) % len(hall_of_fame)
     
     item = hall_of_fame[st.session_state.idx]
     with c_main:
@@ -169,17 +168,17 @@ with t_audit:
         </div>
         """, unsafe_allow_html=True)
 
-    # METRICS
+    # METRICS ROW
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Lifetime Tasks", "561")
-    # 2. DYNAMIC METRIC FIX (No hardcoding)
+    # Dynamic Count (Should be 190 if 'Help Moving' is removed)
     m2.metric("Audit Sample", f"{len(df)}") 
     m3.metric("Composite Rating", f"{df['Rating'].mean():.2f}")
     m4.metric("Operational Risk", "Negligible", delta="- 0% Risk", delta_color="inverse")
 
     st.divider()
     
-    # 3. DYNAMIC SEARCH PLACEHOLDER FIX
+    # Dynamic Search Placeholder
     search = st.text_input(
         f"🔍 Search {len(df)} verified records...", 
         placeholder="Filter by keyword (e.g., 'fast', 'punctual')..."
@@ -195,6 +194,7 @@ with t_audit:
             stars = "★" * int(round(row['Rating']))
             rev = str(row['Review']).strip()
             
+            # Smart Quote Logic
             clean_check = re.sub(r'[^\w\s]', '', rev.lower())
             if clean_check in ['nan', 'none', 'null', 'no text provided', 'no review', '']:
                 rev_html = '<div class="no-review">No written review provided.</div>'
@@ -228,7 +228,7 @@ with t_analytics:
     ).properties(height=350)
     st.altair_chart(growth, use_container_width=True)
     
-    # Sentiment
+    # Sentiment Analysis Chart
     st.markdown("#### 🗣️ Sentiment DNA")
     text = " ".join(df['Review'].astype(str).tolist()).lower()
     targets = {"Fast": text.count("fast"), "Efficient": text.count("efficient"), "Professional": text.count("professional"), "Kind": text.count("kind"), "Helpful": text.count("helpful")}
