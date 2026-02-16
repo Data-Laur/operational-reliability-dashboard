@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- CSS: STABLE & CLEAN (Reverted complex hiding logic) ---
+# --- THE BRAND & UI ENGINE (CSS) ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap');
@@ -22,32 +22,39 @@ st.markdown("""
         color: #1e293b;
     }
 
-    /* TWEAK 1: SIDEBAR VISIBILITY & BRANDING */
-    /* We explicitly ensure the header is visible for mobile users */
-    header { visibility: visible !important; background-color: transparent !important; }
+    /* --- SIDEBAR NAVIGATION FIX: PURPLE & BOLD --- */
+    button[data-testid="stSidebarCollapsedControl"] svg {
+        fill: #4338ca !important;
+        width: 32px !important;
+        height: 32px !important;
+    }
     
-    /* Make the menu button (hamburger) Purple so it stands out */
-    [data-testid="stSidebarCollapsedControl"] {
-        color: #4338ca !important;
+    button[data-testid="stSidebarCollapsedControl"] {
+        background-color: #f1f5f9 !important;
+        border: 2px solid #4338ca !important;
+        border-radius: 8px !important;
+        left: 10px !important;
+        top: 10px !important;
     }
 
-    /* TWEAK 3: PROFILE PICTURE STYLING */
-    /* Simple circle crop for the sidebar image */
+    /* --- IMAGE CLARITY & CIRCLE FIX --- */
     [data-testid="stSidebar"] img {
         border-radius: 50%;
         border: 3px solid #4338ca;
+        image-rendering: -webkit-optimize-contrast; 
+        image-rendering: crisp-edges;
         display: block;
         margin-left: auto;
         margin-right: auto;
     }
 
-    /* Tabs & Widgets (Kept the Orange-removal fix) */
+    /* Tabs & Widgets Branding */
     div[data-baseweb="tab-list"] { padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
     button[data-baseweb="tab"] { font-size: 16pt !important; font-weight: 700 !important; color: #475569 !important; }
     button[data-baseweb="tab"][aria-selected="true"] { color: #4338ca !important; border-bottom-color: #4338ca !important; }
     div[data-baseweb="checkbox"] div:first-child { background-color: #4338ca !important; border-color: #4338ca !important; }
 
-    /* Cards */
+    /* Review Cards Styling */
     .review-card { background-color: #ffffff; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
     .no-review { color: #64748b; font-style: italic; font-size: 14px; }
     </style>
@@ -74,7 +81,7 @@ def load_data():
 
     df = pd.DataFrame(parsed_data, columns=['Category', 'Date', 'Client Name', 'Rating', 'Review'])
     
-    # --- FILTER: REMOVE 'HELP MOVING' ---
+    # FILTER: Removing 'Help Moving' to clean noise from the audit sample
     df = df[~df['Category'].str.contains('Help Moving', case=False, na=False)]
     
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
@@ -95,7 +102,6 @@ df = load_data()
 
 # --- SIDEBAR ---
 with st.sidebar:
-    # TWEAK 3: PROFILE PICTURE (Using standard Streamlit command)
     if os.path.exists("profile.jpg"):
         st.image("profile.jpg", width=120)
         
@@ -109,8 +115,7 @@ with st.sidebar:
     st.divider()
     st.download_button("📥 Download Reviews", df.to_csv(index=False).encode('utf-8'), "Lauren_Performance_Audit.csv")
 
-# --- MAIN PAGE ---
-# Context Header (Kept simple)
+# --- MAIN DASHBOARD PAGE ---
 st.markdown("""
     <div style="background-color:#f8fafc; border-left: 5px solid #4338ca; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
         <h2 style="margin-top:0; color:#1e293b;">Project Overview: Operational Performance Audit</h2>
@@ -124,7 +129,7 @@ st.markdown("""
 t_audit, t_analytics = st.tabs(["📂 Audit Feed", "📈 Analytics & Insights"])
 
 with t_audit:
-    # Spotlight
+    # Spotlight Testimonials
     hall_of_fame = [
         {"text": "Lauren is smart, pleasant and tenacious. Great combo! Hire her!! Very pleased.", "author": "Scott S.", "cat": "Computer Help"},
         {"text": "Lauren was fantastic! She was on time, communicative, and did an amazing job.", "author": "Emily R.", "cat": "Moving Help"},
@@ -136,11 +141,11 @@ with t_audit:
     with c1:
         st.write("") 
         st.write("")
-        if st.button("❮"): st.session_state.idx = (st.session_state.idx - 1) % len(hall_of_fame)
+        if st.button("❮", aria_label="Previous"): st.session_state.idx = (st.session_state.idx - 1) % len(hall_of_fame)
     with c3:
         st.write("")
         st.write("")
-        if st.button("❯"): st.session_state.idx = (st.session_state.idx + 1) % len(hall_of_fame)
+        if st.button("❯", aria_label="Next"): st.session_state.idx = (st.session_state.idx + 1) % len(hall_of_fame)
     
     item = hall_of_fame[st.session_state.idx]
     with c2:
@@ -151,18 +156,17 @@ with t_audit:
         </div>
         """, unsafe_allow_html=True)
 
-    # Metrics
+    # Core Performance Metrics
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Lifetime Tasks", "561")
-    # TWEAK 2: DYNAMIC COUNT (No hardcoded 191)
-    m2.metric("Audit Sample", f"{len(df)}") 
-    m3.metric("Composite Rating", f"{df['Rating'].mean():.2f}")
+    m1.metric("Lifetime Tasks", "561") # Total platform interactions
+    m2.metric("Audit Sample", f"{len(df)}") # Filtered text-review count (190)
+    m3.metric("Composite Rating", "4.9") # Official platform rating from verified data
     m4.metric("Operational Risk", "Negligible", delta="- 0% Risk", delta_color="inverse")
 
     st.divider()
     
-    # Search
-    search = st.text_input("🔍 Search verified records...", placeholder="Filter by keyword...")
+    # Interactive Search
+    search = st.text_input(f"🔍 Search {len(df)} verified records...", placeholder="Filter by keyword (e.g., 'punctual')...")
     filtered_df = df[(df['Domain'].isin(selected_domains)) & (df['Category'].isin(selected_cats))].sort_values('Date', ascending=False)
     if search: filtered_df = filtered_df[filtered_df['Review'].str.contains(search, case=False, na=False)]
 
@@ -194,6 +198,7 @@ with t_analytics:
     st.markdown("### 📊 Operational Insights")
     st.divider()
     
+    # Growth Chart (Cumulative Performance)
     df_sorted = df.sort_values(by='Date')
     df_sorted['Cumulative Reviews'] = range(1, len(df_sorted) + 1)
     growth = alt.Chart(df_sorted).mark_area(
@@ -205,6 +210,7 @@ with t_analytics:
     ).properties(height=350)
     st.altair_chart(growth, use_container_width=True)
     
+    # Qualitative Analysis (Trait Mentions)
     st.markdown("#### 🗣️ Sentiment DNA")
     text = " ".join(df['Review'].astype(str).tolist()).lower()
     targets = {"Fast": text.count("fast"), "Efficient": text.count("efficient"), "Professional": text.count("professional"), "Kind": text.count("kind"), "Helpful": text.count("helpful")}
