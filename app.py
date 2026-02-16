@@ -187,10 +187,17 @@ with st.sidebar:
     
     st.divider()
     
-    # 4. PROOF OF PERFORMANCE 
+# 4. PROOF OF PERFORMANCE 
     if os.path.exists("reviews_screenshot.png"):
         with st.expander("✅ Verified Platform Data", expanded=False):
-            st.image("reviews_screenshot.png", caption="319 Total Ratings (Source: TaskRabbit)", use_container_width=True)
+            st.image("reviews_screenshot.png", use_container_width=True)
+            # We use HTML to force the break <br> and center the text
+            st.markdown("""
+                <p style='text-align: center; font-size: 0.85rem; color: #64748b; margin-top: 5px; line-height: 1.4;'>
+                    319 Total Ratings<br>
+                    (Source: TaskRabbit)
+                </p>
+            """, unsafe_allow_html=True)
         st.divider()
 
     # 5. FILTERS
@@ -203,7 +210,7 @@ with st.sidebar:
     st.markdown('</div>', unsafe_allow_html=True)
     
     st.divider()
-    st.download_button("📥 Download Reviews", df.to_csv(index=False).encode('utf-8'), "Lauren_Chagaris_Audit.csv", use_container_width=True)
+    st.download_button("📥 Download Reviews", df.to_csv(index=False).encode('utf-8'), "Lauren_Chagaris_Taskrabbit_Review_Performance_Audit.csv", use_container_width=True)
 
 # --- MAIN DASHBOARD: THE VIBE CHECK ---
 st.markdown("""
