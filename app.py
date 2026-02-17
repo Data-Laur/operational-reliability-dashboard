@@ -90,11 +90,12 @@ st.markdown("""
         font-size: 1.8rem !important; 
     }
 
-    /* --- TAB FONT SIZE FIX --- */
+    /* --- TAB FONT SIZE FIX (Larger for recruiter visibility) --- */
     button[data-baseweb="tab"] { 
-        font-size: 20px !important; 
+        font-size: 26px !important; 
         font-weight: 700 !important; 
         color: #64748b !important; 
+        padding: 12px 20px !important;
     }
     button[data-baseweb="tab"][aria-selected="true"] { 
         color: #4338ca !important; 
@@ -102,7 +103,7 @@ st.markdown("""
     }
     div[data-baseweb="tab-list"] { 
         padding: 15px 0; 
-        border-bottom: 2px solid #f1f5f9; 
+        border-bottom: 3px solid #f1f5f9; 
     }
 
     /* --- CAROUSEL STYLING --- */
@@ -327,7 +328,7 @@ else:
         # ============================
         hall_of_fame = [
             {"text": "Absolute professional. Solved the problem quickly and explained everything clearly.", "author": "Michael B.", "cat": "Technical Support"},
-            {"text": "Lauren is smart, pleasant and tenacious. Great combo! Hire her!! Very pleased.", "author": "Scott S.", "cat": "Computer Help"},
+            {"text": "Lauren is smart, pleasant and tenacious. Great combo! Hire her!! Very pleased.", "author": "Scott S.", "cat": "Technical Support"},
             {"text": "Lauren was fantastic! She was on time, communicative, and did an amazing job.", "author": "Emily R.", "cat": "Event Staffing"},
         ]
         if 'idx' not in st.session_state:
@@ -361,9 +362,9 @@ else:
         m1, m2, m3, m4, m5 = st.columns(5)
         m1.metric("Lifetime Tasks", "561")
         m2.metric("Verified Sample", f"{len(df)}")
-        m3.metric("Composite Rating", f"{df['Rating'].mean():.2f}")
-        m4.metric("5-Star Tasks", f"{len(df[df['Rating'] == 5.0])}", delta="Top 1% Rank", delta_color="normal")
-        m5.metric("Operational Risk", "Negligible", delta="- 0% Risk", delta_color="inverse")
+        m3.metric("Composite Rating", "4.94")
+        m4.metric("5-Star Tasks", "310", delta="Top 1% Rank", delta_color="normal")
+        m5.metric("Operational Risk", "Negligible", delta="~3% Risk", delta_color="inverse")
 
         st.divider()
         
@@ -453,7 +454,7 @@ else:
                 "Composure (Calm/Easy)": text_corpus.count("calm") + text_corpus.count("easy") + text_corpus.count("patient") + text_corpus.count("stress-free"),
                 "Communication Clarity": text_corpus.count("communicat") + text_corpus.count("talk") + text_corpus.count("conversation"),
                 "Interpersonal IQ": text_corpus.count("nice") + text_corpus.count("friendly") + text_corpus.count("kind"),
-                "High-Stakes Quality": text_corpus.count("beautiful") + text_corpus.count("perfect") + text_corpus.count("fantastic") + text_corpus.count("wonderful"),
+                "High-Stakes Quality": text_corpus.count("recommend") + text_corpus.count("perfect") + text_corpus.count("fantastic") + text_corpus.count("wonderful"),
             }
             pillar_df = pd.DataFrame(list(pillar_data.items()), columns=['Pillar', 'Mentions'])
             pillar_chart = alt.Chart(pillar_df).mark_bar(color='#6366f1').encode(
@@ -468,13 +469,17 @@ else:
             
             keyword_data = {
                 "Great": text_corpus.count("great"),
-                "Easy": text_corpus.count("easy"),
-                "Friendly": text_corpus.count("friendly"),
-                "Quick/Fast": text_corpus.count("quick") + text_corpus.count("fast"),
-                "Communication": text_corpus.count("communicat"),
-                "Beautiful": text_corpus.count("beautiful"),
-                "Wonderful": text_corpus.count("wonderful"),
+                "Recommend": text_corpus.count("recommend"),
+                "Helpful": text_corpus.count("helpful"),
+                "Professional": text_corpus.count("professional"),
                 "Efficient": text_corpus.count("efficient"),
+                "Communication": text_corpus.count("communicat"),
+                "Quick/Fast": text_corpus.count("quick") + text_corpus.count("fast"),
+                "Easy": text_corpus.count("easy"),
+                "Excellent": text_corpus.count("excellent"),
+                "Friendly": text_corpus.count("friendly"),
+                "Amazing": text_corpus.count("amazing"),
+                "Wonderful": text_corpus.count("wonderful"),
             }
             raw_df = pd.DataFrame(list(keyword_data.items()), columns=['Keyword', 'Count'])
             raw_chart = alt.Chart(raw_df).mark_bar(color='#6366f1').encode(
