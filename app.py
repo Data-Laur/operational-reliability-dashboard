@@ -31,7 +31,6 @@ st.markdown("""
         color: #1e293b;
     }
 
-    /* --- GLOBAL COLOR OVERRIDE --- */
     :root {
         --primary-color: #4338ca;
         --text-color: #1e293b;
@@ -91,7 +90,7 @@ st.markdown("""
         font-size: 1.8rem !important; 
     }
 
-    /* --- TAB FONT SIZE FIX (Larger) --- */
+    /* --- TAB FONT SIZE FIX --- */
     button[data-baseweb="tab"] { 
         font-size: 20px !important; 
         font-weight: 700 !important; 
@@ -163,76 +162,54 @@ st.markdown("""
 # --- DATA LOADING ---
 @st.cache_data
 def load_data():
-    # Priority 1: Real data (local / private)
-    real_files = ['taskrabbit_master_clean.csv', 'taskrabbit_reviews.csv']
-    file_path = None
-    for f in real_files:
-        if os.path.exists(f):
-            file_path = f
-            break
+    file_path = 'taskrabbit_reviews_clean.csv'
     
-    if file_path:
-        # Regex parser for the messy CSV
-        parsed_data = []
-        pattern = re.compile(r'^(.+?),(\d{4}-\d{2}-\d{2}),(.+?),(\d\.\d),(.*)$')
-        try:
-            with open(file_path, 'r', encoding='utf-8-sig') as fh:
-                for line in fh.readlines()[1:]:
-                    match = pattern.match(line.strip())
-                    if match:
-                        cat, d_val, name, rating, raw = match.groups()
-                        clean = re.sub(r',"?\s*\d+\.\d+.*$', '', raw).strip('"').strip("'").replace('""', '"')
-                        parsed_data.append([cat.replace('"', '').strip(), d_val, name, rating, clean])
-            df = pd.DataFrame(parsed_data, columns=['Category', 'Date', 'Client Name', 'Rating', 'Review'])
-        except:
-            return pd.DataFrame(), False
-        return _process_df(df), True
-    
-    # Priority 2: Demo data (Streamlit Cloud / public)
-    data = {
-        'Category': [
-            'Arts / Crafts', 'Errands', 'Arts / Crafts', 'Arts / Crafts', 'Computer Help',
-            'Errands', 'Event Staffing', 'Arts / Crafts', 'Packing & Unpacking', 'Computer Help',
-            'Event Staffing', 'Event Staffing', 'Photography', 'Computer Help', 'Packing & Unpacking',
-        ],
-        'Date': [
-            '2025-12-23', '2025-12-21', '2025-12-21', '2025-12-20', '2025-12-19',
-            '2025-12-14', '2025-12-12', '2025-12-09', '2025-12-06', '2025-12-06',
-            '2025-12-02', '2025-11-23', '2025-11-16', '2025-11-14', '2025-10-29',
-        ],
-        'Client Name': [
-            'Pat B.', 'Kara Keating B.', 'Holly H.', 'Jeffrey G.', 'Miriam O.',
-            'Carine C.', 'Shanti F.', 'Carl D.', 'Chris V.', 'Kathy D.',
-            'Paula O.', 'Benjamin M.', 'Todd H.', 'Scott S.', 'Eri S.',
-        ],
-        'Rating': [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
-        'Review': [
-            "Lauren is very professional and does a great job. I highly recommend!",
-            "Saved the day with a prompt gift wrapping job. Followed all instructions!",
-            "Lauren is lovely to work with. Excellent communication and great attention to detail.",
-            "Lauren was great. Great communication went over and out of her way to help when needed. Can't recommend her enough.",
-            "Lauren was great at communication... relaxed yet very efficient, and got the job done.",
-            "Lauren is a pleasure to work with. She was also very responsive throughout our communication.",
-            "Lauren has now done three events at our house. She is terrific and such a pleasure to work with.",
-            "Lauren is extremely talented and professional. She completed the entire task with great care.",
-            "Very easy and friendly. Highly recommended.",
-            "She is really good!",
-            "She did an absolutely fantastic job decorating my trees! She worked quickly and efficiently.",
-            "Lauren was excellent. Super communicative, friendly, and great to work with.",
-            "No text provided",
-            "Lauren is smart, pleasant and tenacious. Great combo! Hire her!! Very pleased.",
-            "Lauren went above and beyond. Much appreciated.",
-        ]
-    }
-    df = pd.DataFrame(data)
-    return _process_df(df), False
+    if os.path.exists(file_path):
+        df = pd.read_csv(file_path)
+        df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+        df['Rating'] = pd.to_numeric(df['Rating'], errors='coerce')
+    else:
+        # Fallback demo data if CSV not found
+        data = {
+            'Category': [
+                'Arts / Crafts', 'Errands', 'Arts / Crafts', 'Arts / Crafts', 'Computer Help',
+                'Errands', 'Event Staffing', 'Arts / Crafts', 'Packing & Unpacking', 'Computer Help',
+                'Event Staffing', 'Event Staffing', 'Photography', 'Computer Help', 'Packing & Unpacking',
+            ],
+            'Date': [
+                '2025-12-23', '2025-12-21', '2025-12-21', '2025-12-20', '2025-12-19',
+                '2025-12-14', '2025-12-12', '2025-12-09', '2025-12-06', '2025-12-06',
+                '2025-12-02', '2025-11-23', '2025-11-16', '2025-11-14', '2025-10-29',
+            ],
+            'Client Name': [
+                'Pat B.', 'Kara Keating B.', 'Holly H.', 'Jeffrey G.', 'Miriam O.',
+                'Carine C.', 'Shanti F.', 'Carl D.', 'Chris V.', 'Kathy D.',
+                'Paula O.', 'Benjamin M.', 'Todd H.', 'Scott S.', 'Eri S.',
+            ],
+            'Rating': [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
+            'Review': [
+                "Lauren is very professional and does a great job. I highly recommend!",
+                "Saved the day with a prompt gift wrapping job. Followed all instructions!",
+                "Lauren is lovely to work with. Excellent communication and great attention to detail.",
+                "Lauren was great. Great communication went over and out of her way to help when needed. Can't recommend her enough.",
+                "Lauren was great at communication... relaxed yet very efficient, and got the job done.",
+                "Lauren is a pleasure to work with. She was also very responsive throughout our communication.",
+                "Lauren has now done three events at our house. She is terrific and such a pleasure to work with.",
+                "Lauren is extremely talented and professional. She completed the entire task with great care.",
+                "Very easy and friendly. Highly recommended.",
+                "She is really good!",
+                "She did an absolutely fantastic job decorating my trees! She worked quickly and efficiently.",
+                "Lauren was excellent. Super communicative, friendly, and great to work with.",
+                "No text provided",
+                "Lauren is smart, pleasant and tenacious. Great combo! Hire her!! Very pleased.",
+                "Lauren went above and beyond. Much appreciated.",
+            ]
+        }
+        df = pd.DataFrame(data)
+        df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+        df['Rating'] = pd.to_numeric(df['Rating'], errors='coerce')
 
-def _process_df(df):
-    # Remove Help Moving category
-    df = df[~df['Category'].str.contains('Help Moving', case=False, na=False)]
-    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
-    df['Rating'] = pd.to_numeric(df['Rating'], errors='coerce')
-    
+    # Domain mapping
     def map_domains(category):
         cat = str(category).lower()
         if 'computer' in cat or 'technical' in cat:
@@ -248,7 +225,7 @@ def _process_df(df):
     df['Domain'] = df['Category'].apply(map_domains)
     return df
 
-df, is_real_data = load_data()
+df = load_data()
 
 
 # ============================================================
@@ -313,16 +290,16 @@ with st.sidebar:
     
     st.divider()
     
-    # 6. DOWNLOAD / PRIVACY NOTICE
-    if not df.empty and is_real_data:
+    # 6. DOWNLOAD REVIEWS
+    if not df.empty:
+        download_df = df[['Category', 'Date', 'Client Name', 'Rating', 'Review']].copy()
+        download_df['Date'] = download_df['Date'].dt.strftime('%Y-%m-%d')
         st.download_button(
             "📥 Download Reviews", 
-            df.to_csv(index=False).encode('utf-8'), 
-            "Lauren_Chagaris_Audit.csv", 
+            download_df.to_csv(index=False).encode('utf-8'), 
+            "Lauren_Chagaris_Verified_Reviews.csv", 
             use_container_width=True
         )
-    elif not df.empty:
-        st.caption("🔒 *Real dataset hidden for privacy. Showing demo data.*")
 
 
 # ============================================================
@@ -383,9 +360,9 @@ else:
         # ============================
         m1, m2, m3, m4, m5 = st.columns(5)
         m1.metric("Lifetime Tasks", "561")
-        m2.metric("Verified Sample", "190")
-        m3.metric("Composite Rating", "4.94")
-        m4.metric("5-Star Tasks", "310", delta="Top 1% Rank", delta_color="normal")
+        m2.metric("Verified Sample", f"{len(df)}")
+        m3.metric("Composite Rating", f"{df['Rating'].mean():.2f}")
+        m4.metric("5-Star Tasks", f"{len(df[df['Rating'] == 5.0])}", delta="Top 1% Rank", delta_color="normal")
         m5.metric("Operational Risk", "Negligible", delta="- 0% Risk", delta_color="inverse")
 
         st.divider()
@@ -394,11 +371,10 @@ else:
         # SEARCH & REVIEW FEED
         # ============================
         search = st.text_input(
-            "🔍 Search 190 verified records...", 
+            f"🔍 Search {len(df)} verified records...", 
             placeholder="Filter by keyword..."
         )
         
-        # Show ALL reviews by default — only filter by search keyword
         filtered_df = df[
             (df['Domain'].isin(selected_domains)) & 
             (df['Category'].isin(selected_cats))
@@ -416,7 +392,6 @@ else:
                 stars = "★" * int(round(row['Rating']))
                 rev = str(row['Review']).strip()
                 
-                # Clean check for empty reviews
                 clean_check = re.sub(r'[^\w\s]', '', rev.lower())
                 if clean_check in ['nan', 'none', 'null', 'no text provided', 'no review', '']:
                     rev_html = '<div class="no-review">No written review provided.</div>'
@@ -443,47 +418,8 @@ else:
     with t_analytics:
         st.markdown("### 📊 Operational Insights")
         st.divider()
-
-        # Use real data for analytics if available, otherwise use hardcoded real values
-        if is_real_data:
-            text_corpus = " ".join(df['Review'].astype(str).tolist()).lower()
-            
-            pillar_data = {
-                "Execution Velocity": text_corpus.count("fast") + text_corpus.count("quick") + text_corpus.count("speed") + text_corpus.count("efficient") + text_corpus.count("efficiency"),
-                "Composure (Calm/Easy)": text_corpus.count("calm") + text_corpus.count("easy") + text_corpus.count("patient") + text_corpus.count("stress-free"),
-                "Communication Clarity": text_corpus.count("communicat") + text_corpus.count("talk") + text_corpus.count("conversation"),
-                "Interpersonal IQ": text_corpus.count("nice") + text_corpus.count("friendly") + text_corpus.count("kind"),
-                "High-Stakes Quality": text_corpus.count("beautiful") + text_corpus.count("perfect") + text_corpus.count("fantastic") + text_corpus.count("wonderful"),
-            }
-            keyword_data = {
-                "Great": text_corpus.count("great"),
-                "Easy": text_corpus.count("easy"),
-                "Friendly": text_corpus.count("friendly"),
-                "Quick/Fast": text_corpus.count("quick") + text_corpus.count("fast"),
-                "Communication": text_corpus.count("communicat"),
-                "Beautiful": text_corpus.count("beautiful"),
-                "Wonderful": text_corpus.count("wonderful"),
-                "Efficient": text_corpus.count("efficient"),
-            }
-        else:
-            # Hardcoded from real 190-review dataset analysis
-            pillar_data = {
-                "Communication Clarity": 34,
-                "Execution Velocity": 28,
-                "High-Stakes Quality": 19,
-                "Interpersonal IQ": 16,
-                "Composure (Calm/Easy)": 15,
-            }
-            keyword_data = {
-                "Great": 58,
-                "Communication": 30,
-                "Efficient": 15,
-                "Quick/Fast": 13,
-                "Easy": 11,
-                "Friendly": 7,
-                "Wonderful": 6,
-                "Beautiful": 4,
-            }
+        
+        text_corpus = " ".join(df['Review'].astype(str).tolist()).lower()
 
         # 1. GROWTH TIMELINE
         df_sorted = df.sort_values(by='Date')
@@ -512,6 +448,13 @@ else:
             st.markdown("#### 🧠 Operational Pillars")
             st.caption("Strategic grouping of synonyms for high-level trait mapping.")
             
+            pillar_data = {
+                "Execution Velocity": text_corpus.count("fast") + text_corpus.count("quick") + text_corpus.count("speed") + text_corpus.count("efficient") + text_corpus.count("efficiency"),
+                "Composure (Calm/Easy)": text_corpus.count("calm") + text_corpus.count("easy") + text_corpus.count("patient") + text_corpus.count("stress-free"),
+                "Communication Clarity": text_corpus.count("communicat") + text_corpus.count("talk") + text_corpus.count("conversation"),
+                "Interpersonal IQ": text_corpus.count("nice") + text_corpus.count("friendly") + text_corpus.count("kind"),
+                "High-Stakes Quality": text_corpus.count("beautiful") + text_corpus.count("perfect") + text_corpus.count("fantastic") + text_corpus.count("wonderful"),
+            }
             pillar_df = pd.DataFrame(list(pillar_data.items()), columns=['Pillar', 'Mentions'])
             pillar_chart = alt.Chart(pillar_df).mark_bar(color='#6366f1').encode(
                 x='Mentions:Q', 
@@ -523,6 +466,16 @@ else:
             st.markdown("#### 🗣️ Raw Keyword Frequency")
             st.caption("Direct 'Word of Mouth' terminology extracted from records.")
             
+            keyword_data = {
+                "Great": text_corpus.count("great"),
+                "Easy": text_corpus.count("easy"),
+                "Friendly": text_corpus.count("friendly"),
+                "Quick/Fast": text_corpus.count("quick") + text_corpus.count("fast"),
+                "Communication": text_corpus.count("communicat"),
+                "Beautiful": text_corpus.count("beautiful"),
+                "Wonderful": text_corpus.count("wonderful"),
+                "Efficient": text_corpus.count("efficient"),
+            }
             raw_df = pd.DataFrame(list(keyword_data.items()), columns=['Keyword', 'Count'])
             raw_chart = alt.Chart(raw_df).mark_bar(color='#6366f1').encode(
                 x='Count:Q', 
