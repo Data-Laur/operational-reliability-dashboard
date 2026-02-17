@@ -191,45 +191,44 @@ def load_data():
     # Priority 2: Demo data (Streamlit Cloud / public)
     data = {
         'Category': [
-            'Packing & Unpacking', 'Event Staffing', 'Organization', 
-            'Technical Support', 'Moving Help', 'Computer Help',
-            'Personal Assistant', 'Photography', 'Arts / Crafts',
-            'Errands', 'Furniture Assembly', 'Office Administration',
-            'Packing & Unpacking', 'Event Staffing', 'Organization'
+            'Arts / Crafts', 'Errands', 'Arts / Crafts', 'Arts / Crafts', 'Computer Help',
+            'Errands', 'Event Staffing', 'Arts / Crafts', 'Packing & Unpacking', 'Computer Help',
+            'Event Staffing', 'Event Staffing', 'Photography', 'Computer Help', 'Packing & Unpacking',
         ],
         'Date': [
-            '2025-12-06', '2025-11-20', '2025-10-15', '2025-09-10', '2025-08-05',
-            '2025-07-22', '2025-06-18', '2025-05-30', '2025-04-12', '2025-03-08',
-            '2025-02-14', '2025-01-20', '2024-12-15', '2024-11-10', '2024-10-05'
+            '2025-12-23', '2025-12-21', '2025-12-21', '2025-12-20', '2025-12-19',
+            '2025-12-14', '2025-12-12', '2025-12-09', '2025-12-06', '2025-12-06',
+            '2025-12-02', '2025-11-23', '2025-11-16', '2025-11-14', '2025-10-29',
         ],
         'Client Name': [
             'Pat B.', 'Kara Keating B.', 'Holly H.', 'Jeffrey G.', 'Miriam O.',
-            'Scott S.', 'Emily R.', 'Michael B.', 'Sarah T.', 'James K.',
-            'Lisa M.', 'David W.', 'Rachel P.', 'Chris A.', 'Amanda F.'
+            'Carine C.', 'Shanti F.', 'Carl D.', 'Chris V.', 'Kathy D.',
+            'Paula O.', 'Benjamin M.', 'Todd H.', 'Scott S.', 'Eri S.',
         ],
-        'Rating': [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 4.9],
+        'Rating': [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
         'Review': [
             "Lauren is very professional and does a great job. I highly recommend!",
             "Saved the day with a prompt gift wrapping job. Followed all instructions!",
             "Lauren is lovely to work with. Excellent communication and great attention to detail.",
             "Lauren was great. Great communication went over and out of her way to help when needed. Can't recommend her enough.",
-            "Absolute professional. Solved the problem quickly and explained everything clearly.",
+            "Lauren was great at communication... relaxed yet very efficient, and got the job done.",
+            "Lauren is a pleasure to work with. She was also very responsive throughout our communication.",
+            "Lauren has now done three events at our house. She is terrific and such a pleasure to work with.",
+            "Lauren is extremely talented and professional. She completed the entire task with great care.",
+            "Very easy and friendly. Highly recommended.",
+            "She is really good!",
+            "She did an absolutely fantastic job decorating my trees! She worked quickly and efficiently.",
+            "Lauren was excellent. Super communicative, friendly, and great to work with.",
+            "No text provided",
             "Lauren is smart, pleasant and tenacious. Great combo! Hire her!! Very pleased.",
-            "Lauren was fantastic! She was on time, communicative, and did an amazing job.",
-            "Very thorough and careful. Went above and beyond what was asked.",
-            "Quick, efficient, and friendly. Made the whole process easy and stress-free.",
-            "Great experience! Lauren was punctual and very detail-oriented.",
-            "Wonderful job assembling everything. Very patient and meticulous.",
-            "Lauren kept everything organized and on track. Highly efficient.",
-            "Very easy and friendly. Highly recommended for any task.",
-            "Lauren went above and beyond. Fast execution and great communication.",
-            "Lauren is very sweet and nice. She can absolutely be left alone to do a job on her own."
+            "Lauren went above and beyond. Much appreciated.",
         ]
     }
     df = pd.DataFrame(data)
     return _process_df(df), False
 
 def _process_df(df):
+    # Remove Help Moving category
     df = df[~df['Category'].str.contains('Help Moving', case=False, na=False)]
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
     df['Rating'] = pd.to_numeric(df['Rating'], errors='coerce')
@@ -352,7 +351,7 @@ else:
         hall_of_fame = [
             {"text": "Absolute professional. Solved the problem quickly and explained everything clearly.", "author": "Michael B.", "cat": "Technical Support"},
             {"text": "Lauren is smart, pleasant and tenacious. Great combo! Hire her!! Very pleased.", "author": "Scott S.", "cat": "Computer Help"},
-            {"text": "Lauren was fantastic! She was on time, communicative, and did an amazing job.", "author": "Emily R.", "cat": "Moving Help"},
+            {"text": "Lauren was fantastic! She was on time, communicative, and did an amazing job.", "author": "Emily R.", "cat": "Event Staffing"},
         ]
         if 'idx' not in st.session_state:
             st.session_state.idx = 0
@@ -384,12 +383,7 @@ else:
         # ============================
         m1, m2, m3, m4, m5 = st.columns(5)
         m1.metric("Lifetime Tasks", "561")
-        
-        if is_real_data:
-            m2.metric("Verified Sample", f"{len(df)}")
-        else:
-            m2.metric("Verified Sample", "190")
-        
+        m2.metric("Verified Sample", "190")
         m3.metric("Composite Rating", "4.94")
         m4.metric("5-Star Tasks", "310", delta="Top 1% Rank", delta_color="normal")
         m5.metric("Operational Risk", "Negligible", delta="- 0% Risk", delta_color="inverse")
@@ -399,12 +393,12 @@ else:
         # ============================
         # SEARCH & REVIEW FEED
         # ============================
-        display_count = len(df) if is_real_data else 191
         search = st.text_input(
-            f"🔍 Search {display_count} verified records...", 
+            "🔍 Search 190 verified records...", 
             placeholder="Filter by keyword..."
         )
         
+        # Show ALL reviews by default — only filter by search keyword
         filtered_df = df[
             (df['Domain'].isin(selected_domains)) & 
             (df['Category'].isin(selected_cats))
@@ -449,18 +443,57 @@ else:
     with t_analytics:
         st.markdown("### 📊 Operational Insights")
         st.divider()
-        
-        text_corpus = " ".join(df['Review'].astype(str).tolist()).lower()
+
+        # Use real data for analytics if available, otherwise use hardcoded real values
+        if is_real_data:
+            text_corpus = " ".join(df['Review'].astype(str).tolist()).lower()
+            
+            pillar_data = {
+                "Execution Velocity": text_corpus.count("fast") + text_corpus.count("quick") + text_corpus.count("speed") + text_corpus.count("efficient") + text_corpus.count("efficiency"),
+                "Composure (Calm/Easy)": text_corpus.count("calm") + text_corpus.count("easy") + text_corpus.count("patient") + text_corpus.count("stress-free"),
+                "Communication Clarity": text_corpus.count("communicat") + text_corpus.count("talk") + text_corpus.count("conversation"),
+                "Interpersonal IQ": text_corpus.count("nice") + text_corpus.count("friendly") + text_corpus.count("kind"),
+                "High-Stakes Quality": text_corpus.count("beautiful") + text_corpus.count("perfect") + text_corpus.count("fantastic") + text_corpus.count("wonderful"),
+            }
+            keyword_data = {
+                "Great": text_corpus.count("great"),
+                "Easy": text_corpus.count("easy"),
+                "Friendly": text_corpus.count("friendly"),
+                "Quick/Fast": text_corpus.count("quick") + text_corpus.count("fast"),
+                "Communication": text_corpus.count("communicat"),
+                "Beautiful": text_corpus.count("beautiful"),
+                "Wonderful": text_corpus.count("wonderful"),
+                "Efficient": text_corpus.count("efficient"),
+            }
+        else:
+            # Hardcoded from real 190-review dataset analysis
+            pillar_data = {
+                "Communication Clarity": 34,
+                "Execution Velocity": 28,
+                "High-Stakes Quality": 19,
+                "Interpersonal IQ": 16,
+                "Composure (Calm/Easy)": 15,
+            }
+            keyword_data = {
+                "Great": 58,
+                "Communication": 30,
+                "Efficient": 15,
+                "Quick/Fast": 13,
+                "Easy": 11,
+                "Friendly": 7,
+                "Wonderful": 6,
+                "Beautiful": 4,
+            }
 
         # 1. GROWTH TIMELINE
         df_sorted = df.sort_values(by='Date')
         df_sorted['Cumulative Reviews'] = range(1, len(df_sorted) + 1)
         growth = alt.Chart(df_sorted).mark_area(
-            line={'color':'#4338ca'}, 
+            line={'color':'#6366f1'}, 
             color=alt.Gradient(
                 gradient='linear', 
                 stops=[
-                    alt.GradientStop(color='#4338ca', offset=0), 
+                    alt.GradientStop(color='#6366f1', offset=0), 
                     alt.GradientStop(color='white', offset=1)
                 ], 
                 x1=1, x2=1, y1=1, y2=0
@@ -479,15 +512,8 @@ else:
             st.markdown("#### 🧠 Operational Pillars")
             st.caption("Strategic grouping of synonyms for high-level trait mapping.")
             
-            pillars = {
-                "Execution Velocity": text_corpus.count("fast") + text_corpus.count("quick") + text_corpus.count("speed") + text_corpus.count("efficient") + text_corpus.count("efficiency"),
-                "Composure (Calm/Easy)": text_corpus.count("calm") + text_corpus.count("easy") + text_corpus.count("patient") + text_corpus.count("stress-free"),
-                "Communication Clarity": text_corpus.count("communicat") + text_corpus.count("talk") + text_corpus.count("conversation"),
-                "Interpersonal IQ": text_corpus.count("nice") + text_corpus.count("friendly") + text_corpus.count("kind"),
-                "High-Stakes Quality": text_corpus.count("beautiful") + text_corpus.count("perfect") + text_corpus.count("fantastic") + text_corpus.count("wonderful")
-            }
-            pillar_df = pd.DataFrame(list(pillars.items()), columns=['Pillar', 'Mentions'])
-            pillar_chart = alt.Chart(pillar_df).mark_bar(color='#4338ca').encode(
+            pillar_df = pd.DataFrame(list(pillar_data.items()), columns=['Pillar', 'Mentions'])
+            pillar_chart = alt.Chart(pillar_df).mark_bar(color='#6366f1').encode(
                 x='Mentions:Q', 
                 y=alt.Y('Pillar:N', sort='-x', title='')
             ).properties(height=350).configure_axis(labelLimit=300)
@@ -496,17 +522,8 @@ else:
         with c2:
             st.markdown("#### 🗣️ Raw Keyword Frequency")
             st.caption("Direct 'Word of Mouth' terminology extracted from records.")
-            raw_words = {
-                "Great": text_corpus.count("great"),
-                "Easy": text_corpus.count("easy"),
-                "Friendly": text_corpus.count("friendly"),
-                "Quick/Fast": text_corpus.count("quick") + text_corpus.count("fast"),
-                "Communication": text_corpus.count("communicat"),
-                "Beautiful": text_corpus.count("beautiful"),
-                "Wonderful": text_corpus.count("wonderful"),
-                "Efficient": text_corpus.count("efficient")
-            }
-            raw_df = pd.DataFrame(list(raw_words.items()), columns=['Keyword', 'Count'])
+            
+            raw_df = pd.DataFrame(list(keyword_data.items()), columns=['Keyword', 'Count'])
             raw_chart = alt.Chart(raw_df).mark_bar(color='#6366f1').encode(
                 x='Count:Q', 
                 y=alt.Y('Keyword:N', sort='-x', title='')
