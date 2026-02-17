@@ -111,13 +111,20 @@ with st.sidebar:
             except Exception:
                 st.warning("Review assets are currently optimizing. Please refer to the README for visual audits.")
     
-    st.divider()
+st.divider()
     
     # Filters & Tags
     st.markdown('<div style="text-align: left; width: 100%;">', unsafe_allow_html=True)
+    
+    # Ensure Domain column exists before UI rendering
+    if 'Domain' not in df.columns:
+        df['Domain'] = df['Category'].apply(map_domains) # This must be indented!
+
+    # Define selected_domains BEFORE available_cats uses it
     selected_domains = st.multiselect("Domains", sorted(df['Domain'].unique()), default=sorted(df['Domain'].unique()))
     
     available_cats = sorted(df[df['Domain'].isin(selected_domains)]['Category'].unique())
+    
     with st.expander("Filter Categories", expanded=False):
         selected_cats = [c for c in available_cats if st.checkbox(c, value=True, key=f"cb_{c}")]
     st.markdown('</div>', unsafe_allow_html=True)
