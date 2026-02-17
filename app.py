@@ -307,9 +307,25 @@ with t_analytics:
     ).properties(height=350)
     st.altair_chart(growth, use_container_width=True)
     
-    st.markdown("#### 🗣️ Sentiment DNA")
+st.markdown("#### 🗣️ Sentiment DNA")
+    # Lowercase everything for accurate matching
     text = " ".join(df['Review'].astype(str).tolist()).lower()
-    targets = {"Fast": text.count("fast"), "Efficient": text.count("efficient"), "Professional": text.count("professional"), "Kind": text.count("kind"), "Helpful": text.count("helpful")}
+    
+    # Advanced Lexicon Mapping: Grouping synonyms into Operational Pillars
+    targets = {
+        "Execution Velocity": text.count("fast") + text.count("quick") + text.count("speed") + text.count("prompt"),
+        "Interpersonal Vibe (Calm/Nice)": text.count("calm") + text.count("nice") + text.count("kind") + text.count("pleasant") + text.count("patient"),
+        "Quality & Aesthetics": text.count("beautiful") + text.count("amazing") + text.count("perfect") + text.count("neat") + text.count("thorough"),
+        "Problem Solving": text.count("helpful") + text.count("solved") + text.count("fixed") + text.count("smart"),
+        "Operational Efficiency": text.count("efficient") + text.count("organized") + text.count("reliable")
+    }
+    
     nlp_df = pd.DataFrame(list(targets.items()), columns=['Trait', 'Mentions'])
-    nlp_chart = alt.Chart(nlp_df).mark_bar(color='#4338ca').encode(x=alt.X('Mentions:Q'), y=alt.Y('Trait:N', sort='-x')).properties(height=350)
+    
+    # Horizontal Bar Chart for high scannability
+    nlp_chart = alt.Chart(nlp_df).mark_bar(color='#4338ca', cornerRadiusEnd=4).encode(
+        x=alt.X('Mentions:Q', title='Frequency of Mentions'), 
+        y=alt.Y('Trait:N', sort='-x', title='')
+    ).properties(height=350)
+    
     st.altair_chart(nlp_chart, use_container_width=True)
