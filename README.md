@@ -2,7 +2,7 @@
 **Authored by Lauren | MS in Data Science, Boston University**
 
 ## 🎯 Project Objective
-This dashboard serves as a "Subject Matter Expert" audit of 561 professional tasks executed between 2018 and 2026. The goal is to quantify operational reliability and client satisfaction through a verified, timestamped dataset.
+This dashboard serves as a "Subject Matter Expert" audit of 561 professional tasks executed between 2018 and 2026. This audit establishes a framework for service-level agreement (SLA) verification, translating qualitative client sentiment into actionable operational reliability metrics.
 
 ## 🚀 Live Demo
 **[Launch the Dashboard](https://lauren-ops-audit.streamlit.app/)**
@@ -12,8 +12,16 @@ This dashboard serves as a "Subject Matter Expert" audit of 561 professional tas
 - **Visualization:** Altair (Declarative Statistical Visualization)
 - **Data Pipeline:** Custom Regex-based CSV parsing and longitudinal retention analysis.
 
+## System Design & Optimization:
+
+Inference Latency: Optimized data loading via pandas with explicit dtypes to reduce memory overhead.
+
+Agentic Readiness: Structured the data pipeline to support future integration with LLM-based sentiment analysis agents.
+
 ## 📝 Data Governance & Sample Selection  
 To ensure the highest level of Data Integrity, this audit utilizes a verified sample of 190 text-based reviews—representing 100% of the qualitative data accessible for external export. While the host platform tracks 319 total ratings and 561 lifetime tasks, I chose to isolate the text reviews to perform a deeper longitudinal study of client sentiment and operational reliability. This methodology allows for a transparent 'subject matter expert' deep dive while maintaining strict compliance with the data available through platform constraints.
+
+Note: The raw taskrabbit_reviews.csv is excluded from this public repository to maintain strict PII compliance. A template.csv is provided to demonstrate the required schema for the data pipeline."
 
 ## ♿ Accessibility (A11y) & Inclusive Design
 This project was built with a "Privacy & Inclusion First" mindset:
