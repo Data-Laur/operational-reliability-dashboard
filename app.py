@@ -36,7 +36,6 @@ st.markdown("""
         --text-color: #1e293b;
     }
 
-    /* --- NUCLEAR TAGS FIX (Kills the Orange Tags) --- */
     span[data-baseweb="tag"] {
         background-color: #e0e7ff !important;
         border: 1px solid #4338ca !important;
@@ -49,7 +48,6 @@ st.markdown("""
         fill: #4338ca !important;
     }
 
-    /* --- NUCLEAR CHECKBOX FIX (Kills the Orange Check) --- */
     div[data-testid="stCheckbox"] label span[aria-checked="true"] {
         background-color: #4338ca !important;
         border-color: #4338ca !important;
@@ -59,7 +57,6 @@ st.markdown("""
         background-color: white !important;
     }
 
-    /* --- HAMBURGER MENU FIX --- */
     button[data-testid="stSidebarCollapsedControl"] {
         color: #4338ca !important;
         background-color: #f1f5f9 !important;
@@ -75,7 +72,6 @@ st.markdown("""
         stroke: #4338ca !important;
     }
 
-    /* --- DOMAIN TAG BOX FIX (Taller) --- */
     .stMultiSelect div[data-baseweb="select"] > div {
         max-height: none !important;
         overflow-y: visible !important;
@@ -85,20 +81,6 @@ st.markdown("""
         margin-bottom: 5px !important;
     }
 
-    /* --- METRIC FONT SIZE FIX --- */
-    div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricValue"] {
-        font-size: 1.8rem !important; 
-    }
-
-    /* --- RISK METRIC: Force green color and hide default arrow --- */
-    div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricDelta"] {
-        color: #16a34a !important;
-    }
-    div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricDelta"] svg {
-        display: none !important;
-    }
-
-    /* --- TAB FONT SIZE FIX (Larger for recruiter visibility) --- */
     button[data-baseweb="tab"] { 
         font-size: 26px !important; 
         font-weight: 700 !important; 
@@ -114,7 +96,6 @@ st.markdown("""
         border-bottom: 3px solid #f1f5f9; 
     }
 
-    /* --- CAROUSEL STYLING --- */
     .carousel-card {
         background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
         color: white;
@@ -139,7 +120,6 @@ st.markdown("""
         font-weight: 700;
     }
 
-    /* --- REVIEW CARDS --- */
     .review-card {
         background-color: #ffffff;
         padding: 24px;
@@ -154,7 +134,6 @@ st.markdown("""
         font-size: 14px;
     }
 
-    /* --- DOWNLOAD BUTTON BRAND COLOR --- */
     div[data-testid="stDownloadButton"] button {
         background-color: #4338ca !important;
         color: white !important;
@@ -165,7 +144,6 @@ st.markdown("""
         background-color: #3730a3 !important;
     }
 
-    /* --- STREAK CALLOUT --- */
     .streak-callout {
         background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
         border: 1px solid #86efac;
@@ -186,7 +164,38 @@ st.markdown("""
         margin-top: 4px;
     }
 
-    /* --- SIDEBAR: Tighten spacing --- */
+    /* Metrics Row */
+    .metrics-row {
+        display: flex;
+        justify-content: space-between;
+        text-align: center;
+        padding: 10px 0 20px 0;
+    }
+    .metric-item {
+        flex: 1;
+    }
+    .metric-label {
+        font-size: 0.875rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+    .metric-value {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #1e293b;
+        line-height: 1.2;
+    }
+    .metric-delta {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #16a34a;
+        height: 1.25rem;
+    }
+    .metric-spacer {
+        height: 1.25rem;
+    }
+
+    /* Sidebar spacing */
     section[data-testid="stSidebar"] hr {
         margin-top: 0.5rem !important;
         margin-bottom: 0.5rem !important;
@@ -213,7 +222,6 @@ def load_data():
         df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
         df['Rating'] = pd.to_numeric(df['Rating'], errors='coerce')
     else:
-        # Fallback demo data if CSV not found
         data = {
             'Category': [
                 'Arts / Crafts', 'Errands', 'Arts / Crafts', 'Arts / Crafts', 'Computer Help',
@@ -253,7 +261,6 @@ def load_data():
         df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
         df['Rating'] = pd.to_numeric(df['Rating'], errors='coerce')
 
-    # Domain mapping
     def map_domains(category):
         cat = str(category).lower()
         if 'computer' in cat or 'technical' in cat:
@@ -276,7 +283,6 @@ df = load_data()
 # SIDEBAR
 # ============================================================
 with st.sidebar:
-    # 1. PROFILE PHOTO
     img_b64 = get_img_as_base64("profile.jpg")
     if img_b64:
         st.markdown(f"""
@@ -286,7 +292,6 @@ with st.sidebar:
             </div>
         """, unsafe_allow_html=True)
         
-    # 2. NAME & TITLE
     st.markdown("""
         <div style="text-align: center;">
             <h1 style="color:#4338ca; margin:0; font-size: 2rem;">LAUREN CHAGARIS</h1>
@@ -295,16 +300,14 @@ with st.sidebar:
         </div>
     """, unsafe_allow_html=True)
     
-    # 3. LINKS 
     c1, c2 = st.columns(2)
     with c1:
         st.link_button("LinkedIn", "https://www.linkedin.com/in/lchagaris", use_container_width=True)
     with c2:
-        st.link_button("Portfolio", "https://www.laurendemidesign.com", use_container_width=True)
+        st.link_button("Portfolio", "https://www.laurendemdesign.com", use_container_width=True)
     
     st.divider()
     
-    # 4. VERIFIED PLATFORM DATA PROOF
     if os.path.exists("reviews_screenshot.png"):
         with st.expander("✅ Verified Platform Data", expanded=False):
             st.image("reviews_screenshot.png", use_column_width=True)
@@ -315,7 +318,6 @@ with st.sidebar:
                 </p>
             """, unsafe_allow_html=True)
 
-    # 5. FILTERS
     if not df.empty:
         selected_domains = st.multiselect(
             "Domains", 
@@ -331,7 +333,6 @@ with st.sidebar:
     
     st.divider()
     
-    # 6. DOWNLOAD REVIEWS
     if not df.empty:
         download_df = df[['Category', 'Date', 'Client Name', 'Rating', 'Review']].copy()
         download_df['Date'] = download_df['Date'].dt.strftime('%Y-%m-%d')
@@ -347,7 +348,6 @@ with st.sidebar:
 # MAIN DASHBOARD
 # ============================================================
 
-# --- HEADER: THE VIBE CHECK ---
 st.markdown("""
     <div style="background-color:#f8fafc; border-left: 5px solid #4338ca; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
         <h2 style="margin-top:0; color:#1e293b;">The Chagaris Vibe Check</h2>
@@ -397,27 +397,37 @@ else:
             """, unsafe_allow_html=True)
 
         # ============================
-        # METRICS ROW
+        # METRICS ROW (Custom HTML)
         # ============================
-        m1, m2, m3, m4, m5 = st.columns(5)
-        m1.metric("Lifetime Tasks", "561")
-        m2.metric("Verified Sample", f"{len(df)}")
-        m3.metric("Composite Rating", "4.94")
-        m4.metric("5-Star Tasks", "310")
-        with m4:
-            st.markdown('<div style="color: #16a34a; font-size: 0.875rem; font-weight: 600; margin-top: -10px;">▲ Top 1% Rank</div>', unsafe_allow_html=True)        
-        m5.metric("Operational Risk", "Negligible")
-        # Custom green down-arrow risk label via HTML
-        st.markdown("""
-            <style>
-            div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricValue"] ~ div {
-                display: none !important;
-            }
-            </style>
+        st.markdown(f"""
+            <div class="metrics-row">
+                <div class="metric-item">
+                    <div class="metric-label">Lifetime Tasks</div>
+                    <div class="metric-value">561</div>
+                    <div class="metric-spacer"></div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Verified Sample</div>
+                    <div class="metric-value">{len(df)}</div>
+                    <div class="metric-spacer"></div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Composite Rating</div>
+                    <div class="metric-value">4.94</div>
+                    <div class="metric-spacer"></div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">5-Star Tasks</div>
+                    <div class="metric-value">310</div>
+                    <div class="metric-delta">▲ Top 1% Rank</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Operational Risk</div>
+                    <div class="metric-value">Negligible</div>
+                    <div class="metric-delta">▼ ~3% Risk</div>
+                </div>
+            </div>
         """, unsafe_allow_html=True)
-        # Inject custom risk delta directly under the metric
-        with m5:
-            st.markdown('<div style="color: #16a34a; font-size: 0.875rem; font-weight: 600; margin-top: -10px;">▼ ~3% Risk</div>', unsafe_allow_html=True)
 
         st.divider()
         
@@ -482,7 +492,6 @@ else:
         df_sorted = df.sort_values(by='Date').reset_index(drop=True)
         df_sorted['Review #'] = range(1, len(df_sorted) + 1)
         
-        # Color coding: green=5star, orange=4star, red=1-2star
         def get_bar_color(rating):
             if rating == 5.0:
                 return '5 Star'
@@ -493,7 +502,6 @@ else:
         
         df_sorted['Rating Group'] = df_sorted['Rating'].apply(get_bar_color)
         
-        # Calculate longest streak
         streak = 0
         max_streak = 0
         for _, row in df_sorted.iterrows():
@@ -503,7 +511,6 @@ else:
             else:
                 streak = 0
         
-        # Build streak chart - thin bars with gaps visible
         color_scale = alt.Scale(
             domain=['5 Star', '4 Star', '1-2 Star'],
             range=['#22c55e', '#f59e0b', '#ef4444']
@@ -512,7 +519,7 @@ else:
         streak_chart = alt.Chart(df_sorted).mark_bar(size=4).encode(
             x=alt.X('Review #:Q', 
                      title='Review (Chronological Order)',
-                     scale=alt.Scale(domain=[0, len(df_sorted) + 1], padding=0),
+                     scale=alt.Scale(domain=[0, len(df_sorted) + 1]),
                      axis=alt.Axis(values=list(range(20, len(df_sorted), 20)))
             ),
             y=alt.Y('Rating:Q', 
@@ -530,7 +537,6 @@ else:
         
         st.altair_chart(streak_chart, use_container_width=True)
         
-        # Streak callout
         st.markdown(f"""
             <div class="streak-callout">
                 <div class="streak-number">{max_streak}</div>
