@@ -287,7 +287,7 @@ with st.sidebar:
     # 4. VERIFIED PLATFORM DATA PROOF
     if os.path.exists("reviews_screenshot.png"):
         with st.expander("✅ Verified Platform Data", expanded=False):
-            st.image("reviews_screenshot.png", use_container_width=True)
+            st.image("reviews_screenshot.png", use_column_width=True)
             st.markdown("""
                 <p style='text-align: center; font-size: 0.85rem; color: #64748b; margin-top: 5px; line-height: 1.4;'>
                     319 Total Ratings<br>
