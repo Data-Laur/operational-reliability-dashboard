@@ -8,9 +8,13 @@ This dashboard serves as a "Subject Matter Expert" audit of 561 professional tas
 **[Launch the Dashboard](https://lauren-ops-audit.streamlit.app/)**
 
 ## 🛠️ Technical Implementation
-- **Framework:** Streamlit (Python)
-- **Visualization:** Altair (Declarative Statistical Visualization)
-- **Data Pipeline:** Custom Regex-based CSV parsing and longitudinal retention analysis.
+**Framework: Streamlit (Python)** for high-performance, reactive front-end delivery.
+
+**Analytical Engine: Altair** for declarative statistical visualization, ensuring mathematical validity in trend analysis.
+
+**Data Integrity:** Implemented a **Schema-First** pipeline. While the raw taskrabbit_reviews.csv is restricted for **PII Compliance**, a taskrabbit_reviews_TEMPLATE.csv is provided to demonstrate the architectural requirements of the regex-based parsing engine.
+
+**Optimization:** Engineered for minimal **Inference Latency** by utilizing static data structures, bypassing the overhead of traditional database connections for a more **Green AI** footprint.
 
 ## System Design & Optimization:
 
