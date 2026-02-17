@@ -90,6 +90,14 @@ st.markdown("""
         font-size: 1.8rem !important; 
     }
 
+    /* --- RISK METRIC: Force green color and down arrow --- */
+    div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricDelta"] {
+        color: #16a34a !important;
+    }
+    div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricDelta"] svg {
+        fill: #16a34a !important;
+    }
+
     /* --- TAB FONT SIZE FIX (Larger for recruiter visibility) --- */
     button[data-baseweb="tab"] { 
         font-size: 26px !important; 
@@ -276,9 +284,9 @@ with st.sidebar:
     # 3. LINKS 
     c1, c2 = st.columns(2)
     with c1:
-        st.link_button("LinkedIn", "https://www.linkedin.com/in/lchagaris", use_container_width=True)
+        st.link_button("LinkedIn", "https://www.linkedin.com/in/laurenchagaris", use_container_width=True)
     with c2:
-        st.link_button("Portfolio", "www.laurendemidesign.com", use_container_width=True)
+        st.link_button("Portfolio", "https://www.uxfol.io/p/laurenchagaris", use_container_width=True)
     
     st.divider()
     
@@ -385,7 +393,8 @@ else:
         m2.metric("Verified Sample", f"{len(df)}")
         m3.metric("Composite Rating", "4.94")
         m4.metric("5-Star Tasks", "310", delta="Top 1% Rank", delta_color="normal")
-        m5.metric("Operational Risk", "Negligible", delta="-~3% Risk", delta_color="inverse")
+        m5.metric("Operational Risk", "Negligible", delta="↓ ~3% Risk")
+
         st.divider()
         
         # ============================
@@ -444,33 +453,59 @@ else:
 
         # 1. FIVE-STAR STREAK TIMELINE
         st.markdown("#### 🔥 Five-Star Consistency Streak")
-        st.caption("Each bar is a review in chronological order. Green = 5-star. Red = below 5-star. Longest unbroken streak highlighted.")
+        st.caption("Each bar is a verified review in chronological order. Longest unbroken five-star streak highlighted below.")
         
         df_sorted = df.sort_values(by='Date').reset_index(drop=True)
         df_sorted['Review #'] = range(1, len(df_sorted) + 1)
-        df_sorted['Is Five Star'] = df_sorted['Rating'] == 5.0
+        
+        # Color coding: green=5star, orange=4star, red=1-2star
+        def get_bar_color(rating):
+            if rating == 5.0:
+                return '5 Star'
+            elif rating == 4.0:
+                return '4 Star'
+            else:
+                return '1-2 Star'
+        
+        df_sorted['Rating Group'] = df_sorted['Rating'].apply(get_bar_color)
         
         # Calculate longest streak
         streak = 0
         max_streak = 0
         for _, row in df_sorted.iterrows():
-            if row['Is Five Star']:
+            if row['Rating'] == 5.0:
                 streak += 1
                 max_streak = max(max_streak, streak)
             else:
                 streak = 0
         
         # Build streak chart
-        streak_chart = alt.Chart(df_sorted).mark_bar(size=3).encode(
-            x=alt.X('Review #:Q', title='Review (Chronological Order)'),
-            y=alt.Y('Rating:Q', title='Rating', scale=alt.Scale(domain=[0, 5.5])),
-            color=alt.condition(
-                alt.datum['Is Five Star'],
-                alt.value('#22c55e'),
-                alt.value('#ef4444')
+        color_scale = alt.Scale(
+            domain=['5 Star', '4 Star', '1-2 Star'],
+            range=['#22c55e', '#f59e0b', '#ef4444']
+        )
+        
+        streak_chart = alt.Chart(df_sorted).mark_bar(
+            cornerRadiusTopLeft=1,
+            cornerRadiusTopRight=1
+        ).encode(
+            x=alt.X('Review #:Q', 
+                     title='Review (Chronological Order)',
+                     scale=alt.Scale(domain=[1, len(df_sorted)]),
+                     axis=alt.Axis(values=list(range(20, len(df_sorted), 20)))
+            ),
+            y=alt.Y('Rating:Q', 
+                     title='Rating', 
+                     scale=alt.Scale(domain=[0, 5.5])
+            ),
+            color=alt.Color('Rating Group:N', 
+                           scale=color_scale, 
+                           legend=alt.Legend(title='Rating', orient='top')
             ),
             tooltip=['Client Name:N', 'Date:T', 'Rating:Q', 'Category:N']
-        ).properties(height=250)
+        ).properties(height=280).configure_view(
+            strokeWidth=0
+        )
         
         st.altair_chart(streak_chart, use_container_width=True)
         
@@ -484,45 +519,7 @@ else:
 
         st.divider()
 
-        # 2. RATING CONSISTENCY BY YEAR
-        st.markdown("#### 📅 Annual Five-Star Rate")
-        st.caption("Percentage of tasks rated 5 stars each year. Sustained excellence across 7+ years.")
-        
-        df_sorted['Year'] = df_sorted['Date'].dt.year
-        yearly_stats = df_sorted.groupby('Year').agg(
-            total=('Rating', 'count'),
-            five_star=('Rating', lambda x: (x == 5.0).sum())
-        ).reset_index()
-        yearly_stats['Five-Star %'] = (yearly_stats['five_star'] / yearly_stats['total'] * 100).round(1)
-        yearly_stats['Year'] = yearly_stats['Year'].astype(str)
-        
-        year_chart = alt.Chart(yearly_stats).mark_bar(
-            color='#6366f1',
-            cornerRadiusTopLeft=6,
-            cornerRadiusTopRight=6
-        ).encode(
-            x=alt.X('Year:N', title='Year', axis=alt.Axis(labelAngle=0)),
-            y=alt.Y('Five-Star %:Q', title='Five-Star Rate (%)', scale=alt.Scale(domain=[0, 105])),
-            tooltip=['Year:N', 'Five-Star %:Q', 'total:Q']
-        ).properties(height=300)
-        
-        # Add text labels on top of bars
-        year_text = alt.Chart(yearly_stats).mark_text(
-            dy=-12,
-            fontSize=13,
-            fontWeight='bold',
-            color='#4338ca'
-        ).encode(
-            x=alt.X('Year:N'),
-            y=alt.Y('Five-Star %:Q'),
-            text=alt.Text('Five-Star %:Q', format='.0f')
-        )
-        
-        st.altair_chart(year_chart + year_text, use_container_width=True)
-        
-        st.divider()
-
-        # 3. DUAL DNA ANALYSIS
+        # 2. DUAL DNA ANALYSIS
         c1, c2 = st.columns(2)
         with c1:
             st.markdown("#### 🧠 Operational Pillars")
