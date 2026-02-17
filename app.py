@@ -403,8 +403,9 @@ else:
         m1.metric("Lifetime Tasks", "561")
         m2.metric("Verified Sample", f"{len(df)}")
         m3.metric("Composite Rating", "4.94")
-        m4.metric("5-Star Tasks", "310", delta="Top 1% Rank", delta_color="normal")
-        m5.metric("Operational Risk", "Negligible")
+        m4.metric("5-Star Tasks", "310")
+        with m4:
+            st.markdown('<div style="color: #16a34a; font-size: 0.875rem; font-weight: 600; margin-top: -10px;">▲ Top 1% Rank</div>', unsafe_allow_html=True)        m5.metric("Operational Risk", "Negligible")
         # Custom green down-arrow risk label via HTML
         st.markdown("""
             <style>
