@@ -136,14 +136,16 @@ with t_audit:
     m5.metric("Operational Risk", "Negligible", delta="- 0% Risk", delta_color="inverse")
     st.divider()
     
-    # SEARCH BAR FIXED: Now shows the count (e.g., "Search 190 verified records...")
+    # SEARCH BAR
     search = st.text_input(f"🔍 Search {len(df)} verified records...", placeholder="Filter by keyword (e.g., 'punctual')...")
     
     filtered_df = df[(df['Domain'].isin(selected_domains)) & (df['Category'].isin(selected_cats))].sort_values('Date', ascending=False)
     
     if search: filtered_df = filtered_df[filtered_df['Review'].str.contains(search, case=False, na=False)]
     
-    # LIMIT REMOVED: Now iterates through all filtered rows
+    # --- RESTORED: Result Count Display ---
+    st.markdown(f"**Showing {len(filtered_df)} verified records**")
+    
     for _, row in filtered_df.iterrows():
         st.markdown(f'<div class="review-card"><strong>{row["Client Name"]}</strong> <span style="color:#FBBF24;">{"★"*int(row["Rating"])}</span><br><small>{row["Date"].strftime("%B %d, %Y")} • {row["Category"]}</small><br>"{row["Review"]}"</div>', unsafe_allow_html=True)
 
@@ -174,7 +176,6 @@ with t_analytics:
         st.markdown("#### 🧠 Operational Pillars")
         st.caption("Strategic grouping of synonyms for high-level trait mapping.")
         
-        # 'Efficient' added to Execution Velocity
         pillars = {
             "Execution Velocity": text_corpus.count("fast") + text_corpus.count("quick") + text_corpus.count("speed") + text_corpus.count("efficient") + text_corpus.count("efficiency"),
             "Composure (Calm/Easy)": text_corpus.count("calm") + text_corpus.count("easy") + text_corpus.count("patient") + text_corpus.count("stress-free"),
