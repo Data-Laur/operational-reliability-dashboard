@@ -39,7 +39,12 @@ st.markdown("""
 
     /* UI Tweaks */
     button[data-testid="stSidebarCollapsedControl"] { color: #4338ca !important; border: 2px solid #4338ca !important; border-radius: 8px !important; }
+    button[data-testid="stSidebarCollapsedControl"] svg { fill: #4338ca !important; }
+    
+    /* Domain Tag Box Fix */
     .stMultiSelect div[data-baseweb="select"] > div { max-height: none !important; white-space: normal !important; }
+    
+    /* Metric Font Fix */
     div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricValue"] { font-size: 1.8rem !important; }
 
     /* Tab Styling */
@@ -71,7 +76,17 @@ def load_data():
     df = df[~df['Category'].str.contains('Help Moving', case=False, na=False)]
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
     df['Rating'] = pd.to_numeric(df['Rating'], errors='coerce')
-    df['Domain'] = df['Category'].apply(lambda x: 'Technical Support' if 'computer' in str(x).lower() else 'Operations')
+    
+    # RESTORED: Detailed Domain Logic
+    def map_domains(category):
+        cat = str(category).lower()
+        if 'computer' in cat: return 'Technical Support'
+        elif any(x in cat for x in ['packing', 'moving']): return 'Logistics'
+        elif 'assistant' in cat: return 'Operations'
+        elif 'photo' in cat: return 'Visual Media'
+        return 'General Ops'
+    
+    df['Domain'] = df['Category'].apply(map_domains)
     return df
 
 df = load_data()
@@ -94,7 +109,17 @@ with st.sidebar:
             st.markdown("<p style='text-align: center; font-size: 0.85rem; color: #64748b; margin-top: 5px; line-height: 1.4;'>319 Total Ratings<br>(Source: TaskRabbit)</p>", unsafe_allow_html=True)
     
     st.divider()
+    
+    # RESTORED: Filters & Tags
+    st.markdown('<div style="text-align: left; width: 100%;">', unsafe_allow_html=True)
     selected_domains = st.multiselect("Domains", sorted(df['Domain'].unique()), default=sorted(df['Domain'].unique()))
+    
+    available_cats = sorted(df[df['Domain'].isin(selected_domains)]['Category'].unique())
+    with st.expander("Filter Categories", expanded=False):
+        selected_cats = [c for c in available_cats if st.checkbox(c, value=True, key=f"cb_{c}")]
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.divider()
     st.download_button("📥 Download Reviews", df.to_csv(index=False).encode('utf-8'), "Lauren_Chagaris_Audit.csv", use_container_width=True)
 
 # --- MAIN ---
@@ -107,12 +132,14 @@ with t_audit:
     m1.metric("Lifetime Tasks", "561")
     m2.metric("Audit Sample", f"{len(df)}")
     m3.metric("Composite Rating", "4.94")
-    m4.metric("5-Star Tasks", "310")
-    m5.metric("Operational Risk", "Negligible")
+    # RESTORED: Top 1% Delta
+    m4.metric("5-Star Tasks", "310", delta="Top 1% Rank", delta_color="normal")
+    m5.metric("Operational Risk", "Negligible", delta="- 0% Risk", delta_color="inverse")
     st.divider()
     
     search = st.text_input("🔍 Search verified records...", placeholder="Filter by keyword...")
-    filtered_df = df.sort_values('Date', ascending=False)
+    filtered_df = df[(df['Domain'].isin(selected_domains)) & (df['Category'].isin(selected_cats))].sort_values('Date', ascending=False)
+    
     if search: filtered_df = filtered_df[filtered_df['Review'].str.contains(search, case=False, na=False)]
     for _, row in filtered_df.head(10).iterrows():
         st.markdown(f'<div class="review-card"><strong>{row["Client Name"]}</strong> <span style="color:#FBBF24;">{"★"*int(row["Rating"])}</span><br><small>{row["Date"].strftime("%B %d, %Y")} • {row["Category"]}</small><br>"{row["Review"]}"</div>', unsafe_allow_html=True)
@@ -124,19 +151,36 @@ with t_analytics:
     # Text Analysis Prep
     text_corpus = " ".join(df['Review'].astype(str).tolist()).lower()
 
+    # 1. GROWTH TIMELINE
+    df_sorted = df.sort_values(by='Date')
+    df_sorted['Cumulative Reviews'] = range(1, len(df_sorted) + 1)
+    growth = alt.Chart(df_sorted).mark_area(
+        line={'color':'#4338ca'}, 
+        color=alt.Gradient(gradient='linear', stops=[alt.GradientStop(color='#4338ca', offset=0), alt.GradientStop(color='white', offset=1)], x1=1, x2=1, y1=1, y2=0)
+    ).encode(
+        x=alt.X('Date:T', title='Timeline'), 
+        y=alt.Y('Cumulative Reviews:Q', title='Review Velocity')
+    ).properties(height=300)
+    st.altair_chart(growth, use_container_width=True)
+    
+    st.divider()
+
+    # 2. THE DUAL DNA ANALYSIS
     c1, c2 = st.columns(2)
     with c1:
         st.markdown("#### 🧠 Operational Pillars")
         st.caption("Strategic grouping of synonyms for high-level trait mapping.")
+        
+        # RESTORED: "Efficient" added to Execution Velocity
         pillars = {
-            "Execution Velocity": text_corpus.count("fast") + text_corpus.count("quick") + text_corpus.count("speed"),
-            "Composure (Calm/Easy)": text_corpus.count("calm") + text_corpus.count("easy") + text_corpus.count("patient"),
+            "Execution Velocity": text_corpus.count("fast") + text_corpus.count("quick") + text_corpus.count("speed") + text_corpus.count("efficient") + text_corpus.count("efficiency"),
+            "Composure (Calm/Easy)": text_corpus.count("calm") + text_corpus.count("easy") + text_corpus.count("patient") + text_corpus.count("stress-free"),
             "Communication Clarity": text_corpus.count("communicat") + text_corpus.count("talk") + text_corpus.count("conversation"),
             "Interpersonal IQ": text_corpus.count("nice") + text_corpus.count("friendly") + text_corpus.count("kind"),
             "High-Stakes Quality": text_corpus.count("beautiful") + text_corpus.count("perfect") + text_corpus.count("fantastic") + text_corpus.count("wonderful")
         }
         pillar_df = pd.DataFrame(list(pillars.items()), columns=['Pillar', 'Mentions'])
-        pillar_chart = alt.Chart(pillar_df).mark_bar(color='#4338ca').encode(x='Mentions:Q', y=alt.Y('Pillar:N', sort='-x')).properties(height=350).configure_axis(labelLimit=300)
+        pillar_chart = alt.Chart(pillar_df).mark_bar(color='#4338ca').encode(x='Mentions:Q', y=alt.Y('Pillar:N', sort='-x', title='')).properties(height=350).configure_axis(labelLimit=300)
         st.altair_chart(pillar_chart, use_container_width=True)
 
     with c2:
@@ -149,8 +193,9 @@ with t_analytics:
             "Quick/Fast": text_corpus.count("quick") + text_corpus.count("fast"),
             "Communication": text_corpus.count("communicat"),
             "Beautiful": text_corpus.count("beautiful"),
-            "Wonderful": text_corpus.count("wonderful")
+            "Wonderful": text_corpus.count("wonderful"),
+            "Efficient": text_corpus.count("efficient")
         }
         raw_df = pd.DataFrame(list(raw_words.items()), columns=['Keyword', 'Count'])
-        raw_chart = alt.Chart(raw_df).mark_bar(color='#6366f1').encode(x='Count:Q', y=alt.Y('Keyword:N', sort='-x')).properties(height=350).configure_axis(labelLimit=300)
+        raw_chart = alt.Chart(raw_df).mark_bar(color='#6366f1').encode(x='Count:Q', y=alt.Y('Keyword:N', sort='-x', title='')).properties(height=350).configure_axis(labelLimit=300)
         st.altair_chart(raw_chart, use_container_width=True)
