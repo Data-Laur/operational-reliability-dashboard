@@ -90,12 +90,12 @@ st.markdown("""
         font-size: 1.8rem !important; 
     }
 
-    /* --- RISK METRIC: Force green color and down arrow --- */
+    /* --- RISK METRIC: Force green color and hide default arrow --- */
     div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricDelta"] {
         color: #16a34a !important;
     }
     div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricDelta"] svg {
-        fill: #16a34a !important;
+        display: none !important;
     }
 
     /* --- TAB FONT SIZE FIX (Larger for recruiter visibility) --- */
@@ -184,6 +184,20 @@ st.markdown("""
         font-size: 0.95rem;
         color: #475569;
         margin-top: 4px;
+    }
+
+    /* --- SIDEBAR: Tighten spacing --- */
+    section[data-testid="stSidebar"] hr {
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    section[data-testid="stSidebar"] .stExpander {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+    section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -284,9 +298,9 @@ with st.sidebar:
     # 3. LINKS 
     c1, c2 = st.columns(2)
     with c1:
-        st.link_button("LinkedIn", "https://www.linkedin.com/in/laurenchagaris", use_container_width=True)
+        st.link_button("LinkedIn", "https://www.linkedin.com/in/lchagaris", use_container_width=True)
     with c2:
-        st.link_button("Portfolio", "https://www.uxfol.io/p/laurenchagaris", use_container_width=True)
+        st.link_button("Portfolio", "https://www.laurendemidesign.com", use_container_width=True)
     
     st.divider()
     
@@ -300,10 +314,8 @@ with st.sidebar:
                     (Source: TaskRabbit)
                 </p>
             """, unsafe_allow_html=True)
-        st.divider()
 
     # 5. FILTERS
-    st.markdown('<div style="text-align: left; width: 100%;">', unsafe_allow_html=True)
     if not df.empty:
         selected_domains = st.multiselect(
             "Domains", 
@@ -316,7 +328,6 @@ with st.sidebar:
     else:
         selected_domains = []
         selected_cats = []
-    st.markdown('</div>', unsafe_allow_html=True)
     
     st.divider()
     
@@ -393,7 +404,18 @@ else:
         m2.metric("Verified Sample", f"{len(df)}")
         m3.metric("Composite Rating", "4.94")
         m4.metric("5-Star Tasks", "310", delta="Top 1% Rank", delta_color="normal")
-        m5.metric("Operational Risk", "Negligible", delta="↓ ~3% Risk")
+        m5.metric("Operational Risk", "Negligible")
+        # Custom green down-arrow risk label via HTML
+        st.markdown("""
+            <style>
+            div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricValue"] ~ div {
+                display: none !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+        # Inject custom risk delta directly under the metric
+        with m5:
+            st.markdown('<div style="color: #16a34a; font-size: 0.875rem; font-weight: 600; margin-top: -10px;">▼ ~3% Risk</div>', unsafe_allow_html=True)
 
         st.divider()
         
@@ -479,19 +501,16 @@ else:
             else:
                 streak = 0
         
-        # Build streak chart
+        # Build streak chart - thin bars with gaps visible
         color_scale = alt.Scale(
             domain=['5 Star', '4 Star', '1-2 Star'],
             range=['#22c55e', '#f59e0b', '#ef4444']
         )
         
-        streak_chart = alt.Chart(df_sorted).mark_bar(
-            cornerRadiusTopLeft=1,
-            cornerRadiusTopRight=1
-        ).encode(
+        streak_chart = alt.Chart(df_sorted).mark_bar(size=4).encode(
             x=alt.X('Review #:Q', 
                      title='Review (Chronological Order)',
-                     scale=alt.Scale(domain=[1, len(df_sorted)]),
+                     scale=alt.Scale(domain=[0, len(df_sorted) + 1], padding=0),
                      axis=alt.Axis(values=list(range(20, len(df_sorted), 20)))
             ),
             y=alt.Y('Rating:Q', 
