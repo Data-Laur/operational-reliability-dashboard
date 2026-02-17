@@ -77,7 +77,7 @@ def load_data():
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
     df['Rating'] = pd.to_numeric(df['Rating'], errors='coerce')
     
-    # RESTORED: Detailed Domain Logic
+    # Detailed Domain Logic
     def map_domains(category):
         cat = str(category).lower()
         if 'computer' in cat: return 'Technical Support'
@@ -99,8 +99,8 @@ with st.sidebar:
     st.markdown('<div style="text-align: center;"><h1 style="color:#4338ca; margin:0; font-size: 2rem;">LAUREN CHAGARIS</h1><p style="font-weight:700; color:#1e293b; margin: 5px 0;">AI Engineer & Data Scientist</p><p style="font-size:0.85rem; color:#64748b; margin-bottom: 20px;">Focus: Sustainability & Optimization 🌿</p></div>', unsafe_allow_html=True)
     
     c1, c2 = st.columns(2)
-    with c1: st.link_button("LinkedIn", "https://www.linkedin.com/in/laurenchagaris", use_container_width=True)
-    with c2: st.link_button("Portfolio", "https://www.uxfol.io/p/laurenchagaris", use_container_width=True)
+    with c1: st.link_button("LinkedIn", "https://www.linkedin.com/in/lchagaris", use_container_width=True)
+    with c2: st.link_button("Portfolio", "https://www.laurendemidesign.com", use_container_width=True)
     
     st.divider()
     if os.path.exists("reviews_screenshot.png"):
@@ -110,7 +110,7 @@ with st.sidebar:
     
     st.divider()
     
-    # RESTORED: Filters & Tags
+    # Filters & Tags
     st.markdown('<div style="text-align: left; width: 100%;">', unsafe_allow_html=True)
     selected_domains = st.multiselect("Domains", sorted(df['Domain'].unique()), default=sorted(df['Domain'].unique()))
     
@@ -120,7 +120,7 @@ with st.sidebar:
     st.markdown('</div>', unsafe_allow_html=True)
     
     st.divider()
-    st.download_button("📥 Download Reviews", df.to_csv(index=False).encode('utf-8'), "Lauren_Chagaris_Audit.csv", use_container_width=True)
+    st.download_button("📥 Download Reviews", df.to_csv(index=False).encode('utf-8'), "Lauren_Chagaris_Taskrabbit_Performance_Audit.csv", use_container_width=True)
 
 # --- MAIN ---
 st.markdown('<div style="background-color:#f8fafc; border-left: 5px solid #4338ca; padding: 20px; border-radius: 8px; margin-bottom: 25px;"><h2 style="margin-top:0; color:#1e293b;">The Chagaris Vibe Check</h2><p style="font-size:1.1rem; line-height:1.5; color:#475569;">This dashboard audits <strong>561 real-world tasks</strong> to provide empirical proof of reliability and problem-solving.</p></div>', unsafe_allow_html=True)
@@ -132,16 +132,19 @@ with t_audit:
     m1.metric("Lifetime Tasks", "561")
     m2.metric("Audit Sample", f"{len(df)}")
     m3.metric("Composite Rating", "4.94")
-    # RESTORED: Top 1% Delta
     m4.metric("5-Star Tasks", "310", delta="Top 1% Rank", delta_color="normal")
     m5.metric("Operational Risk", "Negligible", delta="- 0% Risk", delta_color="inverse")
     st.divider()
     
-    search = st.text_input("🔍 Search verified records...", placeholder="Filter by keyword...")
+    # SEARCH BAR FIXED: Now shows the count (e.g., "Search 190 verified records...")
+    search = st.text_input(f"🔍 Search {len(df)} verified records...", placeholder="Filter by keyword (e.g., 'punctual')...")
+    
     filtered_df = df[(df['Domain'].isin(selected_domains)) & (df['Category'].isin(selected_cats))].sort_values('Date', ascending=False)
     
     if search: filtered_df = filtered_df[filtered_df['Review'].str.contains(search, case=False, na=False)]
-    for _, row in filtered_df.head(10).iterrows():
+    
+    # LIMIT REMOVED: Now iterates through all filtered rows
+    for _, row in filtered_df.iterrows():
         st.markdown(f'<div class="review-card"><strong>{row["Client Name"]}</strong> <span style="color:#FBBF24;">{"★"*int(row["Rating"])}</span><br><small>{row["Date"].strftime("%B %d, %Y")} • {row["Category"]}</small><br>"{row["Review"]}"</div>', unsafe_allow_html=True)
 
 with t_analytics:
@@ -171,7 +174,7 @@ with t_analytics:
         st.markdown("#### 🧠 Operational Pillars")
         st.caption("Strategic grouping of synonyms for high-level trait mapping.")
         
-        # RESTORED: "Efficient" added to Execution Velocity
+        # 'Efficient' added to Execution Velocity
         pillars = {
             "Execution Velocity": text_corpus.count("fast") + text_corpus.count("quick") + text_corpus.count("speed") + text_corpus.count("efficient") + text_corpus.count("efficiency"),
             "Composure (Calm/Easy)": text_corpus.count("calm") + text_corpus.count("easy") + text_corpus.count("patient") + text_corpus.count("stress-free"),
