@@ -304,7 +304,7 @@ with st.sidebar:
     with c1:
         st.link_button("LinkedIn", "https://www.linkedin.com/in/lchagaris", use_container_width=True)
     with c2:
-        st.link_button("Portfolio", "https://www.laurendemdesign.com", use_container_width=True)
+        st.link_button("Portfolio", "https://www.laurendemidesign.com", use_container_width=True)
     
     st.divider()
     
