@@ -405,7 +405,8 @@ else:
         m3.metric("Composite Rating", "4.94")
         m4.metric("5-Star Tasks", "310")
         with m4:
-            st.markdown('<div style="color: #16a34a; font-size: 0.875rem; font-weight: 600; margin-top: -10px;">▲ Top 1% Rank</div>', unsafe_allow_html=True)        m5.metric("Operational Risk", "Negligible")
+            st.markdown('<div style="color: #16a34a; font-size: 0.875rem; font-weight: 600; margin-top: -10px;">▲ Top 1% Rank</div>', unsafe_allow_html=True)        
+        m5.metric("Operational Risk", "Negligible")
         # Custom green down-arrow risk label via HTML
         st.markdown("""
             <style>
