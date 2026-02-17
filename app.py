@@ -100,13 +100,16 @@ with st.sidebar:
     
     c1, c2 = st.columns(2)
     with c1: st.link_button("LinkedIn", "https://www.linkedin.com/in/lchagaris", use_container_width=True)
-    with c2: st.link_button("Portfolio", "https://www.laurendemidesign.com", use_container_width=True)
+    with c2: 
+        st.link_button("Portfolio", "https://www.laurendemidesign.com", use_container_width=True)
     
     st.divider()
     if os.path.exists("reviews_screenshot.png"):
         with st.expander("✅ Verified Platform Data", expanded=False):
-            st.image("reviews_screenshot.png", use_container_width=True)
-            st.markdown("<p style='text-align: center; font-size: 0.85rem; color: #64748b; margin-top: 5px; line-height: 1.4;'>319 Total Ratings<br>(Source: TaskRabbit)</p>", unsafe_allow_html=True)
+            try:
+                st.image("reviews_screenshot.png", use_container_width=True)
+            except Exception:
+                st.warning("Review assets are currently optimizing. Please refer to the README for visual audits.")
     
     st.divider()
     
