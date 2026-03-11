@@ -295,7 +295,7 @@ with st.sidebar:
     st.markdown("""
         <div style="text-align: center;">
             <h1 style="color:#4338ca; margin:0; font-size: 2rem;">LAUREN CHAGARIS</h1>
-            <p style="font-weight:700; color:#1e293b; margin: 5px 0;">AI Engineer & Data Scientist</p>
+            <p style="font-weight:700; color:#1e293b; margin: 5px 0;">Strategist & Data Scientist</p>
             <p style="font-size:0.85rem; color:#64748b; margin-bottom: 20px;">Focus: Sustainability & Optimization 🌿</p>
         </div>
     """, unsafe_allow_html=True)
